@@ -12,4 +12,4 @@ package org.lanternpowered.kommando
 /**
  * The base exception for command related exceptions.
  */
-open class CommandException(val errorMessage: Message) : RuntimeException()
+open class CommandException(val error: Message) : RuntimeException()

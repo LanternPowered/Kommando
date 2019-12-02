@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.kommando
 
-import org.lanternpowered.kommando.argument.argumentOf
 import org.lanternpowered.kommando.argument.boolean
 import org.lanternpowered.kommando.argument.convert
 import org.lanternpowered.kommando.argument.default
@@ -41,7 +40,7 @@ val testCommand = commandOf<Any> {
 
   val test by argumentOf<Int> {
     parse {
-      success(1)
+      result(1)
     }
   }.name("test-argument")
 

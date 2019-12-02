@@ -11,32 +11,53 @@ package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.Message
 
-fun <A, B, C, S> triple(
-    a: Argument<A, in S>,
-    b: Argument<B, in S>,
-    c: Argument<C, in S>
-): Argument<Triple<A, B, C>, S> = argumentOf {
+/**
+ * Constructs an [Argument] based on the three given arguments.
+ */
+fun <A, B, S> pair(
+    first: Argument<A, in S>,
+    second: Argument<B, in S>
+): Argument<Pair<A, B>, S> = argumentOf {
   parse {
-    val resultA = a.parse()
-    if (resultA is ParseResult.Error)
-      return@parse resultA.mapType()
-
-    val resultB = b.parse()
-    if (resultB is ParseResult.Error)
-      return@parse resultB.mapType()
-
-    val resultC = c.parse()
-    (resultA + resultB + resultC).map { pair -> Triple(pair.first.first, pair.first.second, pair.second) }
+    val a = first.parse()
+    val b = second.parse()
+    a + b
+  }
+  suggest {
+    if (!first.tryParse()) first.suggest() else second.suggest()
   }
 }
 
 /**
- * Constructs a enum [Argument] based on the given enum type [E].
+ * Constructs an [Argument] based on the three given arguments.
+ */
+fun <A, B, C, S> triple(
+    first: Argument<A, in S>,
+    second: Argument<B, in S>,
+    third: Argument<C, in S>
+): Argument<Triple<A, B, C>, S> = argumentOf {
+  parse {
+    val a = first.parse()
+    val b = second.parse()
+    val c = third.parse()
+    (a + b + c).map { pair -> Triple(pair.first.first, pair.first.second, pair.second) }
+  }
+  suggest {
+    when {
+      !first.tryParse() -> first.suggest()
+      !second.tryParse() -> second.suggest()
+      else -> third.suggest()
+    }
+  }
+}
+
+/**
+ * Constructs an enum [Argument] based on the given enum type [E].
  */
 inline fun <reified E : Enum<E>> enum(): Argument<E, Any> = enum(enumValues<E>().toList())
 
 /**
- * Constructs a enum [Argument] based on the given [values].
+ * Constructs an enum [Argument] based on the given [values].
  */
 fun <E : Enum<E>> enum(values: List<E>): Argument<E, Any> = argumentOf {
   val mappedValues = values.associateBy { value -> value.name.toLowerCase() }
@@ -44,7 +65,7 @@ fun <E : Enum<E>> enum(values: List<E>): Argument<E, Any> = argumentOf {
   parse {
     val name = parseString()
     val value = mappedValues[name]
-    if (value != null) success(value) else error("Enum value must be one of [$joinedKeys], but found $name")
+    if (value != null) result(value) else error("Enum value must be one of [$joinedKeys], but found $name")
   }
 }
 
@@ -79,7 +100,7 @@ fun <V> choice(values: Map<String, V>): Argument<V, Any> = argumentOf {
   parse {
     val key = parseString()
     val value = immutableValues[key]
-    if (value != null) success(value) else error("Choice must be one of [$joinedKeys], but found $key")
+    if (value != null) result(value) else error("Choice must be one of [$joinedKeys], but found $key")
   }
 }
 
@@ -88,7 +109,7 @@ fun <V> choice(values: Map<String, V>): Argument<V, Any> = argumentOf {
  */
 fun boolean(): Argument<Boolean, Any> = argumentOf {
   parse {
-    success(parseBoolean())
+    result(parseBoolean())
   }
   val suggestions = listOf("true", "false")
   suggest {
@@ -101,13 +122,13 @@ fun boolean(): Argument<Boolean, Any> = argumentOf {
  */
 fun string(): Argument<String, Any> = argumentOf {
   parse {
-    success(parseString())
+    result(parseString())
   }
 }
 
 fun int(): Argument<Int, Any> = argumentOf {
   parse {
-    success(parseInt())
+    result(parseInt())
   }
 }
 
@@ -118,13 +139,13 @@ fun int(range: IntRange): Argument<Int, Any> = argumentOf {
       "Int must not be less than ${range.first}, but found $value" }
     check(value <= range.last) {
       "Int must not be greater than ${range.last}, but found $value" }
-    success(value)
+    result(value)
   }
 }
 
 fun long(): Argument<Long, Any> = argumentOf {
   parse {
-    success(parseLong())
+    result(parseLong())
   }
 }
 
@@ -135,13 +156,13 @@ fun long(range: LongRange): Argument<Long, Any> = argumentOf {
       "Long must not be less than ${range.first}, but found $value" }
     check(value <= range.last) {
       "Long must not be greater than ${range.last}, but found $value" }
-    success(value)
+    result(value)
   }
 }
 
 fun float(): Argument<Float, Any> = argumentOf {
   parse {
-    success(parseFloat())
+    result(parseFloat())
   }
 }
 
@@ -152,13 +173,13 @@ fun float(range: ClosedFloatingPointRange<Float>): Argument<Float, Any> = argume
       "Float must not be less than ${range.start}, but found $value" }
     check(value <= range.endInclusive) {
       "Float must not be greater than ${range.endInclusive}, but found $value" }
-    success(value)
+    result(value)
   }
 }
 
 fun double(): Argument<Double, Any> = argumentOf {
   parse {
-    success(parseDouble())
+    result(parseDouble())
   }
 }
 
@@ -169,7 +190,7 @@ fun double(range: ClosedFloatingPointRange<Double>): Argument<Double, Any> = arg
       "Double must not be less than ${range.start}, but found $value" }
     check(value <= range.endInclusive) {
       "Double must not be greater than ${range.endInclusive}, but found $value" }
-    success(value)
+    result(value)
   }
 }
 
@@ -215,7 +236,7 @@ private inline fun <R : ClosedRange<T>, T> range(
       val endValue = value.substring(index + 2)
       end = if (endValue.isEmpty()) max else endValue.parse() ?: fail()
     }
-    success(builder(start, end))
+    result(builder(start, end))
   }
 }
 
@@ -225,9 +246,10 @@ private inline fun <R : ClosedRange<T>, T> range(
 fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argumentOf {
   val argument = this@optional
   parse {
-    when (val result = argument.parse()) {
-      is ParseResult.Success -> result.asNullable()
-      is ParseResult.Error -> success(null, result.error)
+    try {
+      argument.parse().asNullable()
+    } catch (ex: ArgumentParseException) {
+      result(null, ex.error)
     }
   }
   suggest {
@@ -247,33 +269,9 @@ fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() ->
 
 fun <T, S> Argument<T?, S>.default(defaultValue: T): Argument<T, S> = defaultBy { defaultValue }
 
-fun <T, S> Argument<T, S>.pair(): Argument<Pair<T, T>, S> = argumentOf {
-  val argument = this@pair
-  parse {
-    val first = argument.parse()
-    if (first is ParseResult.Error)
-      return@parse first.mapType()
+fun <T, S> Argument<T, S>.pair(): Argument<Pair<T, T>, S> = pair(this, this)
 
-    val second = argument.parse()
-    first + second
-  }
-}
-
-fun <T, S> Argument<T, S>.triple(): Argument<Triple<T, T, T>, S> = argumentOf {
-  val argument = this@triple
-  parse {
-    val first = argument.parse()
-    if (first is ParseResult.Error)
-      return@parse first.mapType()
-
-    val second = argument.parse()
-    if (second is ParseResult.Error)
-      return@parse second.mapType()
-
-    val third = argument.parse()
-    (first + second + third).map { pair -> Triple(pair.first.first, pair.first.second, pair.second) }
-  }
-}
+fun <T, S> Argument<T, S>.triple(): Argument<Triple<T, T, T>, S> = triple(this, this, this)
 
 fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument<List<T>, S> = argumentOf {
   val argument = this@multiple
@@ -281,25 +279,30 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
     val list = mutableListOf<T>()
     var potentialError: Message? = null
     loop@ for (i in 0 until times.last) {
-      when (val result = argument.parse(this)) {
-        is ParseResult.Success -> {
-          list += result.value
-          potentialError = result.potentialError
-        }
-        is ParseResult.Error -> {
-          // Not enough arguments were parsed in order
-          // to be successful
-          if (i < times.first)
-            return@parse result.mapType()
+      try {
+        val result = argument.parse(this)
+        list += result.value
+        potentialError = result.potentialError
+      } catch (ex: ArgumentParseException) {
+        // Not enough arguments were parsed in order
+        // to be successful
+        if (i < times.first)
+          throw ex
 
-          // The minimum amount of values got reached,
-          // so try to parse the next argument.
-          potentialError = result.error
-          break@loop
-        }
+        // The minimum amount of values got reached,
+        // so try to parse the next argument.
+        potentialError = ex.error
+        break@loop
       }
     }
-    success(list, potentialError)
+    result(list, potentialError)
+  }
+  suggest {
+    loop@ for (i in 0 until times.last) {
+      if (!argument.tryParse())
+        break@loop
+    }
+    argument.suggest()
   }
   val rangeName = times.formatName()
   name {
@@ -327,9 +330,7 @@ fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> =
 fun <T, S> Argument<T, S>.validate(fn: ArgumentValidationContext.(T) -> Unit): Argument<T, S> = argumentOf {
   val argument = this@validate
   parse {
-    argument.parse().also {
-      if (it is ParseResult.Success) fn(it.value)
-    }
+    argument.parse().also { fn(it.value) }
   }
   suggest {
     argument.suggest()

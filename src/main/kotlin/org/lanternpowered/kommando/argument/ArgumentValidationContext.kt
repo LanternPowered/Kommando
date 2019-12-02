@@ -10,13 +10,6 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.Message
-import kotlin.contracts.contract
-
-fun ArgumentValidationContext.check(value: Boolean, message: () -> Any) {
-  contract {
-    returns() implies value
-  }
-}
 
 interface ArgumentValidationContext {
 
@@ -24,11 +17,7 @@ interface ArgumentValidationContext {
 
   fun fail(message: String): Nothing
 
-  //fun check(state: Boolean, message: () -> Any)
+  fun check(state: Boolean, message: () -> Any)
 
   fun check(state: Boolean)
-
-  companion object {
-
-  }
 }

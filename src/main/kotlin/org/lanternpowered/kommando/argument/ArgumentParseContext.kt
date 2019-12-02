@@ -15,15 +15,18 @@ import org.lanternpowered.kommando.Message
 
 interface ArgumentParseContext<S> : CommandContext<S>, ArgumentValidationContext {
 
-  fun <T> success(value: T, potentialError: Message? = null) = ParseResult.Success(value, potentialError)
-
-  fun <T> error(error: Message): ParseResult.Error<T> = ParseResult.Error(error)
-
-  fun <T> error(error: String): ParseResult.Error<T> = error(LiteralMessage(error))
+  fun <T> result(value: T, potentialError: Message? = null) = ParseResult(value, potentialError)
 
   fun <T> Argument<T, in S>.parse(): ParseResult<T>
 
-  fun <T> Argument<T, S>.suggest(): List<String>
+  /**
+   * Tries to parse the argument, returns true if it was successful
+   * and false if a failure. In case of a failure, the reading cursor
+   * will be reset to the state before parsing.
+   */
+  fun <T> Argument<T, in S>.tryParse(): Boolean
+
+  fun <T> Argument<T, in S>.suggest(): List<String>
 
   /**
    * The cursor position of the reader.
