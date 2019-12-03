@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.kommando.impl
 
+import org.lanternpowered.kommando.BaseCommandBuilder
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
 import org.lanternpowered.kommando.Flag
@@ -89,15 +90,19 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun execute(fn: NullContext.() -> Unit) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
   override fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun subcommand(name: String, aliases: List<String>, command: Command<in S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun group(fn: BaseCommandBuilder<S>.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun execute(fn: NullContext.() -> Unit): Nothing {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 

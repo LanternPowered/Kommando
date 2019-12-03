@@ -116,22 +116,25 @@ abstract class choices<T> : Argument<T, Any> {
   private val choices = mutableMapOf<String, T>()
   private val joinedKeys by lazy { this.choices.keys.joinToString { ", " } }
 
-  /**
-   * Gets a delegate to access the source.
-   */
-  @JvmName("register")
-  protected operator fun T.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
-    choices[prop.name.toLowerCase()] = this
-    return this
+  protected fun register(name: String, value: T): T {
+    this.choices[name.toLowerCase()] = value
+    return value
   }
 
   /**
    * Gets a delegate to access the source.
    */
-  @JvmName("register")
-  protected operator fun Pair<String, T>.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
-    choices[this.first.toLowerCase()] = this.second
-    return this.second
+  @Suppress("NOTHING_TO_INLINE")
+  protected inline operator fun T.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
+    return register(prop.name, this)
+  }
+
+  /**
+   * Gets a delegate to access the source.
+   */
+  @Suppress("NOTHING_TO_INLINE")
+  protected inline operator fun Pair<String, T>.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
+    return register(this.first, this.second)
   }
 
   @Suppress("NOTHING_TO_INLINE")
