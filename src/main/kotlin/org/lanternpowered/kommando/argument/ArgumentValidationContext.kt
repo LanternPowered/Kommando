@@ -9,13 +9,9 @@
  */
 package org.lanternpowered.kommando.argument
 
-import org.lanternpowered.kommando.Message
-
 interface ArgumentValidationContext {
 
-  fun fail(message: Message): Nothing
-
-  fun fail(message: String): Nothing
+  fun error(message: Any): Nothing
 
   fun check(state: Boolean, message: () -> Any)
 

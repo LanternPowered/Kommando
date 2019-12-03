@@ -224,18 +224,18 @@ private inline fun <R : ClosedRange<T>, T> range(
 ): Argument<R, Any> = argumentOf {
   parse {
     val value = parseUnquotedString()
-    val fail = { fail("Expected $name range, but found $value") }
+    val error = { error("Expected $name range, but found $value") }
     val index = value.indexOf("..")
     val start: T
     val end: T
     if (index == -1) {
-      start = value.parse() ?: fail()
+      start = value.parse() ?: error()
       end = start
     } else {
       val startValue = value.substring(0, index)
-      start = if (startValue.isEmpty()) min else startValue.parse() ?: fail()
+      start = if (startValue.isEmpty()) min else startValue.parse() ?: error()
       val endValue = value.substring(index + 2)
-      end = if (endValue.isEmpty()) max else endValue.parse() ?: fail()
+      end = if (endValue.isEmpty()) max else endValue.parse() ?: error()
     }
     result(builder(start, end))
   }
@@ -279,7 +279,7 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
   parse {
     val list = mutableListOf<T>()
     var potentialError: Message? = null
-    loop@ for (i in 0 until times.last) {
+    for (i in 0 until times.last) {
       try {
         val result = argument.parse(this)
         list += result.value
@@ -293,7 +293,7 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
         // The minimum amount of values got reached,
         // so try to parse the next argument.
         potentialError = ex.error
-        break@loop
+        break
       }
     }
     result(list, potentialError)
