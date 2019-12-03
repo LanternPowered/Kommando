@@ -91,10 +91,8 @@ val mcAdvancementCommand = command<Any> {
   val action by actions
   val target by string()
 
-  "everything" {
-    execute {
-      println("/advancement $action <target: $target> everything")
-    }
+  "everything" execute {
+    println("/advancement $action <target: $target> everything")
   }
 
   group {
@@ -116,22 +114,16 @@ val mcAdvancementCommand = command<Any> {
       }
     }
 
-    "from" {
-      execute {
-        println("/advancement $action <target: $target> from <advancement: $advancement>")
-      }
+    "from" execute {
+      println("/advancement $action <target: $target> from <advancement: $advancement>")
     }
 
-    "through" {
-      execute {
-        println("/advancement $action <target: $target> through <advancement: $advancement>")
-      }
+    "through" execute {
+      println("/advancement $action <target: $target> through <advancement: $advancement>")
     }
 
-    "until" {
-      execute {
-        println("/advancement $action <target: $target> until <advancement: $advancement>")
-      }
+    "until" execute {
+      println("/advancement $action <target: $target> until <advancement: $advancement>")
     }
   }
 }

@@ -182,6 +182,15 @@ interface BaseCommandBuilder<S> {
   /**
    * Builds and registers a sub-command.
    */
+  infix fun String.execute(fn: NullContext.() -> Unit) {
+    subcommand(this) {
+      execute(fn)
+    }
+  }
+
+  /**
+   * Builds and registers a sub-command.
+   */
   fun subcommand(name: String, fn: CommandBuilder<S>.() -> Unit) {
     subcommand(name, listOf(), fn)
   }
