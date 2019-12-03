@@ -18,7 +18,7 @@ import kotlin.reflect.KProperty
 /**
  * Constructs a new command.
  */
-fun <S> commandOf(fn: CommandBuilder<S>.() -> Unit): Command<S> {
+fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S> {
   return CommandBuilderImpl<S>().apply(fn).build()
 }
 
@@ -73,7 +73,7 @@ interface NamedFlag : Named {
 interface Source<S>
 
 @CommandDsl
-interface CommandBuilder<S> {
+interface BaseCommandBuilder<S> {
 
   /**
    * Gets the property that represents the
@@ -170,12 +170,7 @@ interface CommandBuilder<S> {
   /**
    * Constructs a new [Argument].
    */
-  fun <T> argumentOf(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S>
-
-  /**
-   * Sets the executor for the current command, doesn't affect sub-commands.
-   */
-  fun execute(fn: NullContext.() -> Unit)
+  fun <T> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S>
 
   /**
    * Builds and registers a sub-command.
@@ -257,4 +252,21 @@ interface CommandBuilder<S> {
   fun subcommand(name: String, firstAlias: String, secondAlias: String, thirdAlias: String, command: Command<in S>) {
     subcommand(name, listOf(firstAlias, secondAlias, thirdAlias), command)
   }
+
+  /**
+   * This function is useful is certain sub-commands require some
+   * arguments before the name of the sub-command.
+   * For example: '/name <my-argument> a|b' where a and b
+   * are sub-commands.
+   */
+  fun group(fn: BaseCommandBuilder<S>.() -> Unit)
+}
+
+@CommandDsl
+interface CommandBuilder<S> : BaseCommandBuilder<S> {
+
+  /**
+   * Sets the executor for the current command, doesn't affect sub-commands.
+   */
+  fun execute(fn: NullContext.() -> Unit): Nothing
 }

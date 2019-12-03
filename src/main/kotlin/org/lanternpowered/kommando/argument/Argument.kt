@@ -11,7 +11,6 @@ package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.CommandDsl
 import org.lanternpowered.kommando.impl.ArgumentBuilderImpl
-import kotlin.experimental.ExperimentalTypeInference
 
 /**
  * Represents an argument that can be parsed.
@@ -37,7 +36,7 @@ interface Argument<T, S> {
 /**
  * Constructs a new [Argument].
  */
-fun <T, S> argumentOf(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
+fun <T, S> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
   return ArgumentBuilderImpl<T, S>().apply(fn).build()
 }
 

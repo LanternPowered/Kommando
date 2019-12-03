@@ -85,7 +85,7 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun <T> argumentOf(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
+  override fun <T> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 

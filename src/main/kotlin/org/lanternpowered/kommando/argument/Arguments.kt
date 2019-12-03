@@ -11,6 +11,7 @@ package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.Message
 import org.lanternpowered.kommando.NullContext
+import kotlin.reflect.KProperty
 
 /**
  * Constructs an [Argument] based on the three given arguments.
@@ -18,7 +19,7 @@ import org.lanternpowered.kommando.NullContext
 fun <A, B, S> pair(
     first: Argument<A, in S>,
     second: Argument<B, in S>
-): Argument<Pair<A, B>, S> = argumentOf {
+): Argument<Pair<A, B>, S> = argument {
   parse {
     val a = first.parse()
     val b = second.parse()
@@ -36,7 +37,7 @@ fun <A, B, C, S> triple(
     first: Argument<A, in S>,
     second: Argument<B, in S>,
     third: Argument<C, in S>
-): Argument<Triple<A, B, C>, S> = argumentOf {
+): Argument<Triple<A, B, C>, S> = argument {
   parse {
     val a = first.parse()
     val b = second.parse()
@@ -60,7 +61,7 @@ inline fun <reified E : Enum<E>> enum(): Argument<E, Any> = enum(enumValues<E>()
 /**
  * Constructs an enum [Argument] based on the given [values].
  */
-fun <E : Enum<E>> enum(values: List<E>): Argument<E, Any> = argumentOf {
+fun <E : Enum<E>> enum(values: List<E>): Argument<E, Any> = argument {
   val mappedValues = values.associateBy { value -> value.name.toLowerCase() }
   val joinedKeys = mappedValues.keys.joinToString(", ")
   parse {
@@ -94,7 +95,7 @@ fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pai
 /**
  * Constructs a choices [Argument] based on the given [values].
  */
-fun <V> choice(values: Map<String, V>): Argument<V, Any> = argumentOf {
+fun <V> choice(values: Map<String, V>): Argument<V, Any> = argument {
   check(values.isNotEmpty()) { "The values may not be empty" }
   val immutableValues = values.toMap()
   val joinedKeys = immutableValues.keys.joinToString(", ")
@@ -103,12 +104,52 @@ fun <V> choice(values: Map<String, V>): Argument<V, Any> = argumentOf {
     val value = immutableValues[key]
     if (value != null) result(value) else error("Choice must be one of [$joinedKeys], but found $key")
   }
+  // TODO suggestions
+}
+
+/**
+ * A base classes for local choices objects in the builder.
+ */
+@Suppress("ClassName")
+abstract class choices<T> : Argument<T, Any> {
+
+  private val choices = mutableMapOf<String, T>()
+  private val joinedKeys by lazy { this.choices.keys.joinToString { ", " } }
+
+  /**
+   * Gets a delegate to access the source.
+   */
+  @JvmName("register")
+  protected operator fun T.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
+    choices[prop.name.toLowerCase()] = this
+    return this
+  }
+
+  /**
+   * Gets a delegate to access the source.
+   */
+  @JvmName("register")
+  protected operator fun Pair<String, T>.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
+    choices[this.first.toLowerCase()] = this.second
+    return this.second
+  }
+
+  @Suppress("NOTHING_TO_INLINE")
+  protected inline operator fun T.getValue(thisRef: Any?, property: KProperty<*>) = this
+
+  override fun parse(context: ArgumentParseContext<Any>): ParseResult<T> {
+    val key = context.parseString()
+    val value = choices[key]
+    return if (value != null) ParseResult(value) else error("Choice must be one of [$joinedKeys], but found $key")
+  }
+
+  override fun suggest(context: ArgumentParseContext<Any>): List<String> = listOf() // TODO
 }
 
 /**
  * Constructs a boolean [Argument].
  */
-fun boolean(): Argument<Boolean, Any> = argumentOf {
+fun boolean(): Argument<Boolean, Any> = argument {
   parse {
     result(parseBoolean())
   }
@@ -121,19 +162,19 @@ fun boolean(): Argument<Boolean, Any> = argumentOf {
 /**
  * Constructs a string [Argument].
  */
-fun string(): Argument<String, Any> = argumentOf {
+fun string(): Argument<String, Any> = argument {
   parse {
     result(parseString())
   }
 }
 
-fun int(): Argument<Int, Any> = argumentOf {
+fun int(): Argument<Int, Any> = argument {
   parse {
     result(parseInt())
   }
 }
 
-fun int(range: IntRange): Argument<Int, Any> = argumentOf {
+fun int(range: IntRange): Argument<Int, Any> = argument {
   parse {
     val value = parseInt()
     check(value >= range.first) {
@@ -144,13 +185,13 @@ fun int(range: IntRange): Argument<Int, Any> = argumentOf {
   }
 }
 
-fun long(): Argument<Long, Any> = argumentOf {
+fun long(): Argument<Long, Any> = argument {
   parse {
     result(parseLong())
   }
 }
 
-fun long(range: LongRange): Argument<Long, Any> = argumentOf {
+fun long(range: LongRange): Argument<Long, Any> = argument {
   parse {
     val value = parseLong()
     check(value >= range.first) {
@@ -161,13 +202,13 @@ fun long(range: LongRange): Argument<Long, Any> = argumentOf {
   }
 }
 
-fun float(): Argument<Float, Any> = argumentOf {
+fun float(): Argument<Float, Any> = argument {
   parse {
     result(parseFloat())
   }
 }
 
-fun float(range: ClosedFloatingPointRange<Float>): Argument<Float, Any> = argumentOf {
+fun float(range: ClosedFloatingPointRange<Float>): Argument<Float, Any> = argument {
   parse {
     val value = parseFloat()
     check(value >= range.start) {
@@ -178,13 +219,13 @@ fun float(range: ClosedFloatingPointRange<Float>): Argument<Float, Any> = argume
   }
 }
 
-fun double(): Argument<Double, Any> = argumentOf {
+fun double(): Argument<Double, Any> = argument {
   parse {
     result(parseDouble())
   }
 }
 
-fun double(range: ClosedFloatingPointRange<Double>): Argument<Double, Any> = argumentOf {
+fun double(range: ClosedFloatingPointRange<Double>): Argument<Double, Any> = argument {
   parse {
     val value = parseDouble()
     check(value >= range.start) {
@@ -221,7 +262,7 @@ fun floatRange(): Argument<ClosedFloatingPointRange<Float>, Any>
 
 private inline fun <R : ClosedRange<T>, T> range(
     name: String, min: T, max: T, crossinline parse: String.() -> T?, crossinline builder: (start: T, end: T) -> R
-): Argument<R, Any> = argumentOf {
+): Argument<R, Any> = argument {
   parse {
     val value = parseUnquotedString()
     val error = { error("Expected $name range, but found $value") }
@@ -244,7 +285,7 @@ private inline fun <R : ClosedRange<T>, T> range(
 /**
  * Constructs a argument that parses the argument optionally.
  */
-fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argumentOf {
+fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argument {
   val argument = this@optional
   parse {
     try {
@@ -258,7 +299,7 @@ fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argumentOf {
   }
 }
 
-fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() -> T): Argument<T, S> = argumentOf {
+fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() -> T): Argument<T, S> = argument {
   val argument = this@defaultBy
   parse {
     argument.parse().map { value -> value ?: defaultValue() }
@@ -274,7 +315,7 @@ fun <T, S> Argument<T, S>.pair(): Argument<Pair<T, T>, S> = pair(this, this)
 
 fun <T, S> Argument<T, S>.triple(): Argument<Triple<T, T, T>, S> = triple(this, this, this)
 
-fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument<List<T>, S> = argumentOf {
+fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument<List<T>, S> = argument {
   val argument = this@multiple
   parse {
     val list = mutableListOf<T>()
@@ -315,7 +356,7 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
 /**
  * Converts the output value.
  */
-fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> = argumentOf {
+fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> = argument {
   val argument = this@convert
   parse {
     argument.parse().map { NullContext.fn(it) }
@@ -328,7 +369,7 @@ fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> =
   }
 }
 
-fun <T, S> Argument<T, S>.validate(fn: ArgumentValidationContext.(T) -> Unit): Argument<T, S> = argumentOf {
+fun <T, S> Argument<T, S>.validate(fn: ArgumentValidationContext.(T) -> Unit): Argument<T, S> = argument {
   val argument = this@validate
   parse {
     argument.parse().also { fn(it.value) }
