@@ -7,9 +7,11 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando.argument
+package org.lanternpowered.kommando
 
-import org.lanternpowered.kommando.CommandDsl
-
+/**
+ * A dummy context that contains nothing,
+ * used for designing the DSL.
+ */
 @CommandDsl
 object NullContext

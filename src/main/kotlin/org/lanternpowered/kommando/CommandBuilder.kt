@@ -70,13 +70,21 @@ interface NamedFlag : Named {
 }
 
 @CommandDsl
+interface Source<S>
+
+@CommandDsl
 interface CommandBuilder<S> {
 
   /**
    * Gets the property that represents the
    * source of the command execution.
    */
-  fun source(): ReadOnlyProperty<Any?, S>
+  fun source(): Source<S>
+
+  /**
+   * Gets a delegate to access the source.
+   */
+  operator fun <S> Source<S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S>
 
   /**
    * Registers a new flag to the command builder. The name of the property will
@@ -167,36 +175,86 @@ interface CommandBuilder<S> {
   /**
    * Sets the executor for the current command, doesn't affect sub-commands.
    */
-  fun execute(fn: CommandExecutionContext.() -> Unit)
+  fun execute(fn: NullContext.() -> Unit)
 
   /**
    * Builds and registers a sub-command.
    */
-  operator fun String.invoke(fn: SubCommandBuilder<S>.() -> Unit) {
-    child(this, fn)
+  operator fun String.invoke(fn: CommandBuilder<S>.() -> Unit) {
+    subcommand(this, fn)
   }
 
   /**
    * Builds and registers a sub-command.
    */
-  fun child(name: String, fn: SubCommandBuilder<S>.() -> Unit)
+  fun subcommand(name: String, fn: CommandBuilder<S>.() -> Unit) {
+    subcommand(name, listOf(), fn)
+  }
 
   /**
-   * Adds a child command.
+   * Builds and registers a sub-command.
+   */
+  fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit)
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  fun subcommand(name: String, vararg aliases: String, fn: CommandBuilder<S>.() -> Unit) {
+    subcommand(name, aliases.toList(), fn)
+  }
+
+  /**
+   * Adds a sub-command.
+   *
+   * @param name The name of the sub-command
+   * @param aliases The aliases of the sub-command
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, aliases: List<String>, command: Command<in S>)
+
+  /**
+   * Adds a sub-command.
    *
    * @param name The name of the child command
    * @param command The sub-command
    */
-  fun child(name: String, command: Command<in S>, fn: SubCommandSettingsBuilder.() -> Unit = {})
-}
+  fun subcommand(name: String, command: Command<in S>) {
+    subcommand(name, listOf(), command)
+  }
 
-@CommandDsl
-interface CommandExecutionContext
+  /**
+   * Adds a sub-command.
+   *
+   * @param name The name
+   * @param alias The alias
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, alias: String, command: Command<in S>) {
+    subcommand(name, listOf(alias), command)
+  }
 
-interface SubCommandBuilder<S> : CommandBuilder<S>, SubCommandSettingsBuilder
+  /**
+   * Adds a sub-command.
+   *
+   * @param name The name
+   * @param firstAlias The first alias
+   * @param secondAlias The second alias
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, firstAlias: String, secondAlias: String, command: Command<in S>) {
+    subcommand(name, listOf(firstAlias, secondAlias), command)
+  }
 
-@CommandDsl
-interface SubCommandSettingsBuilder {
-
-  fun alias(name: String)
+  /**
+   * Adds a sub-command.
+   *
+   * @param name The name
+   * @param firstAlias The first alias
+   * @param secondAlias The second alias
+   * @param thirdAlias The third alias
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, firstAlias: String, secondAlias: String, thirdAlias: String, command: Command<in S>) {
+    subcommand(name, listOf(firstAlias, secondAlias, thirdAlias), command)
+  }
 }

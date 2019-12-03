@@ -56,14 +56,18 @@ val testCommand = commandOf<Any> {
   }
 
   // Add children based on other commands
-  child("name", otherCommand) {
-    alias("alias")
+  subcommand("name", "alias", "more", otherCommand)
+
+  subcommand("with", "alias") {
+    // Do things
+
+    execute {
+
+    }
   }
 
   // Define sub commands in this builder
   "sub-command" {
-    alias("test")
-
     val another by int(1..100).multiple().name("values")
 
     execute {

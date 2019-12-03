@@ -10,6 +10,7 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.Message
+import org.lanternpowered.kommando.NullContext
 
 /**
  * Constructs an [Argument] based on the three given arguments.
@@ -298,9 +299,9 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
     result(list, potentialError)
   }
   suggest {
-    loop@ for (i in 0 until times.last) {
+    for (i in 0 until times.last) {
       if (!argument.tryParse())
-        break@loop
+        break
     }
     argument.suggest()
   }

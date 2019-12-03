@@ -11,14 +11,13 @@ package org.lanternpowered.kommando.impl
 
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
-import org.lanternpowered.kommando.CommandExecutionContext
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.NamedFlag
 import org.lanternpowered.kommando.NamedOption
+import org.lanternpowered.kommando.NullContext
 import org.lanternpowered.kommando.Option
-import org.lanternpowered.kommando.SubCommandBuilder
-import org.lanternpowered.kommando.SubCommandSettingsBuilder
+import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.argument.ArgumentBuilder
 import kotlin.properties.ReadOnlyProperty
@@ -30,43 +29,11 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO()
   }
 
-  override fun <T> Argument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+  override fun source(): Source<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun String.invoke(fn: SubCommandBuilder<S>.() -> Unit) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun child(name: String, command: Command<in S>, fn: SubCommandSettingsBuilder.() -> Unit) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun child(name: String, fn: SubCommandBuilder<S>.() -> Unit) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun source(): ReadOnlyProperty<Any?, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Argument<T, S>.option(): Option<T?, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun execute(fn: CommandExecutionContext.() -> Unit) {
+  override fun <S> Source<S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -75,6 +42,14 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
   }
 
   override fun NamedFlag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Argument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -94,11 +69,36 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
+  override fun <T, S> Argument<T, S>.option(): Option<T?, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
   override fun <T, S> Option<T, S>.name(name: String, vararg aliases: String): NamedOption<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun <T> argumentOf(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
+
+  override fun execute(fn: NullContext.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun subcommand(name: String, aliases: List<String>, command: Command<in S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
 }
