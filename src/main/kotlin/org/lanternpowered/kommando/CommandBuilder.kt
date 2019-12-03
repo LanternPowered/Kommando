@@ -241,25 +241,25 @@ interface BaseCommandBuilder<S> {
    * Adds a sub-command.
    *
    * @param name The name
-   * @param firstAlias The first alias
-   * @param secondAlias The second alias
+   * @param alias1 The first alias
+   * @param alias2 The second alias
    * @param command The sub-command
    */
-  fun subcommand(name: String, firstAlias: String, secondAlias: String, command: Command<in S>) {
-    subcommand(name, listOf(firstAlias, secondAlias), command)
+  fun subcommand(name: String, alias1: String, alias2: String, command: Command<in S>) {
+    subcommand(name, listOf(alias1, alias2), command)
   }
 
   /**
    * Adds a sub-command.
    *
    * @param name The name
-   * @param firstAlias The first alias
-   * @param secondAlias The second alias
-   * @param thirdAlias The third alias
+   * @param alias1 The first alias
+   * @param alias2 The second alias
+   * @param alias3 The third alias
    * @param command The sub-command
    */
-  fun subcommand(name: String, firstAlias: String, secondAlias: String, thirdAlias: String, command: Command<in S>) {
-    subcommand(name, listOf(firstAlias, secondAlias, thirdAlias), command)
+  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, command: Command<in S>) {
+    subcommand(name, listOf(alias1, alias2, alias3), command)
   }
 
   /**

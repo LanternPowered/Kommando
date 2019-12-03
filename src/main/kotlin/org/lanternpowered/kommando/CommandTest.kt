@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.kommando
 
-import org.lanternpowered.kommando.argument.choices
+import org.lanternpowered.kommando.argument.choice
 import org.lanternpowered.kommando.argument.boolean
 import org.lanternpowered.kommando.argument.convert
 import org.lanternpowered.kommando.argument.default
@@ -47,7 +47,7 @@ val testCommand = command<Any> {
   }.name("test-argument")
 
   // --my-flag
-  val flagValue by flag().name("my-flag")
+  val flagValue by flag().name("--my-flag", "-f")
 
   // --my-option 100
   // --my-option=100
@@ -83,7 +83,7 @@ val mcAdvancementCommand = command<Any> {
 
   // local enum classes aren't supported yet by kotlin
 
-  val actions = object : choices<String>() {
+  val actions = object : choice<String>() {
     val grant by "grant"
     val revoke by "revoke" to "revoke"
   }
@@ -104,12 +104,15 @@ val mcAdvancementCommand = command<Any> {
       execute {
         println("/advancement $action <target: $target> only <advancement: $advancement> [<criterion: $criterion>]")
 
-        if (action == actions.grant) {
-          // Do this
-          println("grant")
-        } else {
-          // Do that
-          println("revoke")
+        when (action) {
+          actions.grant -> {
+            // Do this
+            println("grant")
+          }
+          actions.revoke -> {
+            // Do that
+            println("revoke")
+          }
         }
       }
     }
