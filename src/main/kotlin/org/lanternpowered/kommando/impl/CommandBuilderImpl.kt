@@ -12,6 +12,7 @@ package org.lanternpowered.kommando.impl
 import org.lanternpowered.kommando.BaseCommandBuilder
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
+import org.lanternpowered.kommando.ExecutableCommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.NullContext
@@ -22,7 +23,16 @@ import org.lanternpowered.kommando.argument.ArgumentBuilder
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class CommandBuilderImpl<S> : CommandBuilder<S> {
+internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuilder<S> {
+
+  override fun execute(fn: NullContext.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+}
+
+internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
+
+  private val sourceProperties = mutableListOf<SourceProperty<S, *>>()
 
   fun build(): Command<S> {
     TODO()
@@ -30,8 +40,11 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
 
   override fun source(): Source<S> = SourceImpl()
 
-  override fun <S> Source<S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun <N> Source<N>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, N> {
+    @Suppress("UNCHECKED_CAST")
+    val property = SourceProperty(this as SourceImpl<S, N>)
+    this@BaseCommandBuilderImpl.sourceProperties += property
+    return property
   }
 
   override fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
@@ -78,11 +91,11 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun group(fn: BaseCommandBuilder<S>.() -> Unit) {
+  override fun subcommand(name: String, aliases: List<String>): ExecutableCommandBuilder {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun execute(fn: NullContext.() -> Unit): Nothing {
+  override fun group(fn: BaseCommandBuilder<S>.() -> Unit) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

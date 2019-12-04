@@ -18,9 +18,8 @@ import kotlin.reflect.KProperty
 /**
  * Constructs a new command.
  */
-fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S> {
-  return CommandBuilderImpl<S>().apply(fn).build()
-}
+fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S>
+    = CommandBuilderImpl<S>().apply(fn).build()
 
 interface Named {
 
@@ -158,6 +157,23 @@ interface BaseCommandBuilder<S> {
   /**
    * Builds and registers a sub-command.
    */
+  fun subcommand(name: String, aliases: List<String>): ExecutableCommandBuilder
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  fun subcommand(name: String): ExecutableCommandBuilder
+      = subcommand(name, listOf())
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  fun subcommand(name: String, vararg aliases: String): ExecutableCommandBuilder
+      = subcommand(name, aliases.toList())
+
+  /**
+   * Builds and registers a sub-command.
+   */
   fun subcommand(name: String, fn: CommandBuilder<S>.() -> Unit) {
     subcommand(name, listOf(), fn)
   }
@@ -230,6 +246,35 @@ interface BaseCommandBuilder<S> {
   }
 
   /**
+   * Adds a sub-command.
+   *
+   * @param name The name
+   * @param alias1 The first alias
+   * @param alias2 The second alias
+   * @param alias3 The third alias
+   * @param alias4 The fourth alias
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, alias4: String, command: Command<in S>) {
+    subcommand(name, listOf(alias1, alias2, alias3, alias4), command)
+  }
+
+  /**
+   * Adds a sub-command.
+   *
+   * @param name The name
+   * @param alias1 The first alias
+   * @param alias2 The second alias
+   * @param alias3 The third alias
+   * @param alias4 The fourth alias
+   * @param alias5 The fifth alias
+   * @param command The sub-command
+   */
+  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, alias4: String, alias5: String, command: Command<in S>) {
+    subcommand(name, listOf(alias1, alias2, alias3, alias4, alias5), command)
+  }
+
+  /**
    * This function is useful is certain sub-commands require some
    * arguments before the name of the sub-command.
    * For example: '/name <my-argument> a|b' where a and b
@@ -239,10 +284,13 @@ interface BaseCommandBuilder<S> {
 }
 
 @CommandDsl
-interface CommandBuilder<S> : BaseCommandBuilder<S> {
+interface ExecutableCommandBuilder {
 
   /**
    * Sets the executor for the current command, doesn't affect sub-commands.
    */
-  fun execute(fn: NullContext.() -> Unit): Nothing
+  infix fun execute(fn: NullContext.() -> Unit)
 }
+
+@CommandDsl
+interface CommandBuilder<S> : BaseCommandBuilder<S>, ExecutableCommandBuilder

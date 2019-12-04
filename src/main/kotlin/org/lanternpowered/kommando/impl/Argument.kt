@@ -15,21 +15,35 @@ import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.argument.BaseName
 import org.lanternpowered.kommando.argument.ParseResult
 
-class ArgumentBuilderImpl<T, S> : ArgumentBuilder<T, S> {
+internal class ArgumentImpl<T, S>(
+    private val parse: ArgumentParseContext<S>.() -> ParseResult<T>,
+    private val suggest: ArgumentParseContext<S>.() -> List<String>
+) : Argument<T, S> {
+
+  override fun parse(context: ArgumentParseContext<S>) = context.parse()
+  override fun suggest(context: ArgumentParseContext<S>) = context.suggest()
+}
+
+internal class ArgumentBuilderImpl<T, S> : ArgumentBuilder<T, S> {
+
+  private var parse: (ArgumentParseContext<S>.() -> ParseResult<T>)? = null
+  private var suggest: (ArgumentParseContext<S>.() -> List<String>)? = null
 
   fun build(): Argument<T, S> {
-    TODO()
+    val parse = checkNotNull(this.parse) { "The parse function must be set." }
+    val suggest = this.suggest ?: { listOf() }
+    return ArgumentImpl(parse, suggest)
   }
 
   override fun parse(fn: ArgumentParseContext<S>.() -> ParseResult<T>) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    this.parse = fn
   }
 
   override fun suggest(fn: ArgumentParseContext<S>.() -> List<String>) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    this.suggest = fn
   }
 
   override fun name(fn: BaseName.() -> String) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    // TODO
   }
 }

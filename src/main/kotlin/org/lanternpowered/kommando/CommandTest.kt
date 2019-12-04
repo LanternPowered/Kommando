@@ -76,6 +76,10 @@ val testCommand = command<Any> {
     }
   }
 
+  subcommand("test", "alias") execute {
+
+  }
+
   execute {
     println("/<$value> <$bool>")
   }
