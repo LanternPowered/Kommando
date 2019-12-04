@@ -32,5 +32,4 @@ class ArgumentBuilderImpl<T, S> : ArgumentBuilder<T, S> {
   override fun name(fn: BaseName.() -> String) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
-
 }

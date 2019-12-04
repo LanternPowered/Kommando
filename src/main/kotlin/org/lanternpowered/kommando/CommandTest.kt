@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.kommando
 
-import org.lanternpowered.kommando.argument.choice
+import org.lanternpowered.kommando.argument.choices
 import org.lanternpowered.kommando.argument.boolean
 import org.lanternpowered.kommando.argument.convert
 import org.lanternpowered.kommando.argument.default
@@ -83,7 +83,7 @@ val mcAdvancementCommand = command<Any> {
 
   // local enum classes aren't supported yet by kotlin
 
-  val actions = object : choice<String>() {
+  val actions = object : choices<String>() {
     val grant by "grant"
     val revoke by "revoke" to "revoke"
   }

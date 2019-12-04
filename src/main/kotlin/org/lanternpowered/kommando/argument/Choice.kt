@@ -51,7 +51,7 @@ fun <V> choice(values: Map<String, V>): Argument<V, Any> = argument {
  * A base classes for local choices objects in the builder.
  */
 @Suppress("ClassName")
-abstract class choice<T> : Argument<T, Any> {
+abstract class choices<T> : Argument<T, Any> {
 
   private val choices = mutableMapOf<String, T>()
   private val joinedKeys by lazy { this.choices.keys.joinToString { ", " } }
