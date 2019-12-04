@@ -25,9 +25,9 @@ fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S> {
 interface Named {
 
   /**
-   * The name.
+   * The aliases.
    */
-  val name: String
+  val aliases: List<String>
 }
 
 @CommandDsl
@@ -40,16 +40,7 @@ interface NamedArgument<T, S> : Named {
 }
 
 @CommandDsl
-interface NamedOption<T, S> : Named {
-
-  /**
-   * The option.
-   */
-  val option: Option<T, S>
-}
-
-@CommandDsl
-interface Option<T, S> {
+interface Option<T, S> : Named {
 
   /**
    * The argument.
@@ -58,19 +49,21 @@ interface Option<T, S> {
 }
 
 @CommandDsl
-interface Flag
+interface Flag : Named
 
 @CommandDsl
-interface NamedFlag : Named {
+interface Source<S> {
 
   /**
-   * The flag.
+   * Validates the source.
    */
-  val flag: Flag
-}
+  fun validate(fn: ValidationContext.(source: S) -> Unit): Source<S>
 
-@CommandDsl
-interface Source<S>
+  /**
+   * Converts the source.
+   */
+  fun <R> convert(fn: ValidationContext.(source: S) -> R): Source<R>
+}
 
 @CommandDsl
 interface BaseCommandBuilder<S> {
@@ -94,14 +87,6 @@ interface BaseCommandBuilder<S> {
    * in an [IllegalStateException].
    */
   operator fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean>
-
-  /**
-   * Registers a new flag to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun NamedFlag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean>
 
   /**
    * Registers a new argument to the command builder. The name of the property will
@@ -130,37 +115,19 @@ interface BaseCommandBuilder<S> {
   operator fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
 
   /**
-   * Registers a new named option to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> NamedOption<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
    * Creates a new flag.
    */
-  fun flag(): Flag
-
-  /**
-   * Names the flag with the specified name.
-   */
-  fun Flag.name(name: String, vararg aliases: String): NamedFlag
+  fun flag(name: String, vararg aliases: String): Flag
 
   /**
    * Converts the argument into an option.
    */
-  fun <T, S> Argument<T, S>.option(): Option<T?, S>
+  fun <T, S> Argument<T, S>.option(name: String, vararg aliases: String): Option<T?, S>
 
   /**
    * Makes the option return a default value if the option isn't specified.
    */
   fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S>
-
-  /**
-   * Names the option with the specified name.
-   */
-  fun <T, S> Option<T, S>.name(name: String, vararg aliases: String): NamedOption<T, S>
 
   /**
    * Names the argument with the specified name.

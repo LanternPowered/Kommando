@@ -7,9 +7,9 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando.argument
+package org.lanternpowered.kommando
 
-interface ArgumentValidationContext {
+interface ValidationContext {
 
   fun error(message: Any): Nothing
 

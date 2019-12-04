@@ -25,6 +25,9 @@ val otherCommand = command<Any> {
 
 val testCommand = command<Any> {
   val source by source()
+      .validate {
+        check(it !is String)
+      }
 
   val value by int()
   val bool by boolean()
@@ -47,11 +50,11 @@ val testCommand = command<Any> {
   }.name("test-argument")
 
   // --my-flag
-  val flagValue by flag().name("--my-flag", "-f")
+  val flagValue by flag("--my-flag", "-f")
 
   // --my-option 100
   // --my-option=100
-  val optionValue by int().option().name("--my-option", "-o")
+  val optionValue by int().option("--my-option", "-o")
 
   // Add children based on other commands
   subcommand("name", "alias", "more", otherCommand)

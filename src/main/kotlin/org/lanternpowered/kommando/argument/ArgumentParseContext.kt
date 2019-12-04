@@ -10,10 +10,10 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.CommandContext
-import org.lanternpowered.kommando.LiteralMessage
 import org.lanternpowered.kommando.Message
+import org.lanternpowered.kommando.ValidationContext
 
-interface ArgumentParseContext<S> : CommandContext<S>, ArgumentValidationContext {
+interface ArgumentParseContext<S> : CommandContext<S>, ValidationContext {
 
   fun <T> result(value: T, potentialError: Message? = null) = ParseResult(value, potentialError)
 

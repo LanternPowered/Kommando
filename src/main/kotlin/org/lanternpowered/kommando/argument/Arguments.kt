@@ -10,6 +10,7 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.NullContext
+import org.lanternpowered.kommando.ValidationContext
 
 /**
  * Constructs a boolean [Argument].
@@ -133,10 +134,10 @@ fun <T, S> Argument<T?, S>.default(defaultValue: T): Argument<T, S> = defaultBy 
 /**
  * Converts the output value.
  */
-fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> = argument {
+fun <T, N, S> Argument<T, S>.convert(fn: ValidationContext.(T) -> N): Argument<N, S> = argument {
   val argument = this@convert
   parse {
-    argument.parse().map { NullContext.fn(it) }
+    argument.parse().map { fn(it) }
   }
   suggest {
     argument.suggest()
@@ -146,7 +147,7 @@ fun <T, N, S> Argument<T, S>.convert(fn: NullContext.(T) -> N): Argument<N, S> =
   }
 }
 
-fun <T, S> Argument<T, S>.validate(fn: ArgumentValidationContext.(T) -> Unit): Argument<T, S> = argument {
+fun <T, S> Argument<T, S>.validate(fn: ValidationContext.(T) -> Unit): Argument<T, S> = argument {
   val argument = this@validate
   parse {
     argument.parse().also { fn(it.value) }

@@ -14,8 +14,6 @@ import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
-import org.lanternpowered.kommando.NamedFlag
-import org.lanternpowered.kommando.NamedOption
 import org.lanternpowered.kommando.NullContext
 import org.lanternpowered.kommando.Option
 import org.lanternpowered.kommando.Source
@@ -30,19 +28,13 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO()
   }
 
-  override fun source(): Source<S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  override fun source(): Source<S> = SourceImpl()
 
   override fun <S> Source<S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun NamedFlag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -58,27 +50,15 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun <T> NamedOption<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+  override fun flag(name: String, vararg aliases: String): Flag {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun flag(): Flag {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun Flag.name(name: String, vararg aliases: String): NamedFlag {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Argument<T, S>.option(): Option<T?, S> {
+  override fun <T, S> Argument<T, S>.option(name: String, vararg aliases: String): Option<T?, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Option<T, S>.name(name: String, vararg aliases: String): NamedOption<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -105,5 +85,4 @@ class CommandBuilderImpl<S> : CommandBuilder<S> {
   override fun execute(fn: NullContext.() -> Unit): Nothing {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
-
 }
