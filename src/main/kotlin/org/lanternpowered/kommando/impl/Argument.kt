@@ -15,6 +15,11 @@ import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.argument.BaseName
 import org.lanternpowered.kommando.argument.ParseResult
 
+internal class ArgumentProperty<T>(
+    val argument: Argument<T, *>,
+    val name: String?
+) : ValueProperty<T>()
+
 internal class ArgumentImpl<T, S>(
     private val parse: ArgumentParseContext<S>.() -> ParseResult<T>,
     private val suggest: ArgumentParseContext<S>.() -> List<String>

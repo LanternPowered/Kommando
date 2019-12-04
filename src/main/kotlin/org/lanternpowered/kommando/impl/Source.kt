@@ -20,7 +20,7 @@ internal class SourceProperty<O, S>(private val sourceImpl: SourceImpl<O, S>) : 
   /**
    * Represents that the source isn't initialized yet.
    */
-  object UninitializedSource
+  private object UninitializedSource
 
   private var source: Any? = UninitializedSource
 

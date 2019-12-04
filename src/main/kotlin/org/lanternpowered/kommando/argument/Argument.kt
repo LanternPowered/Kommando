@@ -15,6 +15,7 @@ import org.lanternpowered.kommando.impl.ArgumentBuilderImpl
 /**
  * Represents an argument that can be parsed.
  */
+@CommandDsl
 interface Argument<T, S> {
 
   /**

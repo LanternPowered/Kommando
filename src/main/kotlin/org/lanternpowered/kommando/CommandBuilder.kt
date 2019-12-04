@@ -21,34 +21,17 @@ import kotlin.reflect.KProperty
 fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S>
     = CommandBuilderImpl<S>().apply(fn).build()
 
-interface Named {
-
-  /**
-   * The aliases.
-   */
-  val aliases: List<String>
-}
+@CommandDsl
+interface NamedArgument<T, S>
 
 @CommandDsl
-interface NamedArgument<T, S> : Named {
+interface Option<T, S>
 
-  /**
-   * The argument.
-   */
-  val argument: Argument<T, S>
-}
-
+/**
+ * Represents a flag.
+ */
 @CommandDsl
-interface Option<T, S> : Named {
-
-  /**
-   * The argument.
-   */
-  val argument: Argument<T, S>
-}
-
-@CommandDsl
-interface Flag : Named
+interface Flag
 
 @CommandDsl
 interface Source<S> {
@@ -116,17 +99,22 @@ interface BaseCommandBuilder<S> {
   /**
    * Creates a new flag.
    */
-  fun flag(name: String, vararg aliases: String): Flag
+  fun flag(name: String, vararg more: String): Flag
 
   /**
    * Converts the argument into an option.
    */
-  fun <T, S> Argument<T, S>.option(name: String, vararg aliases: String): Option<T?, S>
+  fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T?, S>
 
   /**
    * Makes the option return a default value if the option isn't specified.
    */
   fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S>
+
+  /**
+   * Makes the option return a default value if the option isn't specified.
+   */
+  fun <T, S> Option<T?, S>.defaultBy(defaultValue: () -> T): Option<T, S>
 
   /**
    * Names the argument with the specified name.
