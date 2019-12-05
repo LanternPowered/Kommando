@@ -37,6 +37,7 @@ interface Argument<T, S> {
 /**
  * Constructs a new [Argument].
  */
+// TODO: Builder inference, once https://youtrack.jetbrains.com/issue/KT-35306 is fixed
 fun <T, S> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
   return ArgumentBuilderImpl<T, S>().apply(fn).build()
 }

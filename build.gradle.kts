@@ -37,6 +37,7 @@ subprojects {
           progressiveMode = true
 
           enableLanguageFeature("InlineClasses")
+          enableLanguageFeature("NewInference")
           enableLanguageFeature("NonParenthesizedAnnotationsOnFunctionalTypes")
 
           useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
