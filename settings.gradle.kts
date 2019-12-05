@@ -1,3 +1,3 @@
 rootProject.name = "Kommando"
 
-include("core")
+include("core", "color", "arrow")

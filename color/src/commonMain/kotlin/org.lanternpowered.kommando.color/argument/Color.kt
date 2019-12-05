@@ -7,16 +7,18 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando.argument
+package org.lanternpowered.kommando.color.argument
 
-import org.lanternpowered.kommando.util.Color
-import org.lanternpowered.kommando.util.Colors
+import org.lanternpowered.kommando.argument.Argument
+import org.lanternpowered.kommando.argument.argument
+import org.lanternpowered.kommando.color.Color
+import org.lanternpowered.kommando.color.Colors
 import org.lanternpowered.kommando.util.clamp
 
 /**
  * The inbuilt color presets, will can be used by name.
  */
-private val inbuiltPresents = mapOf(
+private val inbuiltPresets = mapOf(
     "white" to Colors.White,
     "silver" to Colors.Silver,
     "gray" to Colors.Gray,
@@ -43,7 +45,7 @@ private val inbuiltPresents = mapOf(
 /**
  * Constructs a color argument.
  */
-fun color(presets: Map<String, Color> = inbuiltPresents): Argument<Color, Any> = argument {
+fun color(presets: Map<String, Color> = inbuiltPresets): Argument<Color, Any> = argument {
   val immutablePresets = presets.toMap()
   parse {
     val cursor = this.cursor
@@ -62,9 +64,9 @@ fun color(presets: Map<String, Color> = inbuiltPresents): Argument<Color, Any> =
     // Reset cursor
     this.cursor = cursor
     // Try as RGB values
-    val red = (clamp(parseFloat(), 0f..1.0f) * 255).toInt()
-    val green = (clamp(parseFloat(), 0f..1.0f) * 255).toInt()
-    val blue = (clamp(parseFloat(), 0f..1.0f) * 255).toInt()
+    val red = clamp(parseFloat(), 0f..1.0f)
+    val green = clamp(parseFloat(), 0f..1.0f)
+    val blue = clamp(parseFloat(), 0f..1.0f)
     result(Color(red, green, blue))
   }
 }
