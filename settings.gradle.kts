@@ -1,3 +1,6 @@
 rootProject.name = "Kommando"
 
-include("core", "color", "arrow")
+listOf("core", "color", "arrow").forEach {
+  include(it)
+  project(":$it").name = "kommando-$it"
+}
