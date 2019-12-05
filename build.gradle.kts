@@ -18,15 +18,25 @@ subprojects {
 
   kotlin {
     jvm()
-    // TODO: Figure out why js isn't working; all stdlib methods
-    // TODO: are throwing errors that they are unresolved.
-    // js()
+    js()
     mingwX64()
 
     sourceSets {
       val commonMain by getting {
         dependencies {
+          implementation(kotlin("stdlib-common"))
+        }
+      }
+
+      val jvmMain by getting {
+        dependencies {
           implementation(kotlin("stdlib"))
+        }
+      }
+
+      val jsMain by getting {
+        dependencies {
+          implementation(kotlin("stdlib-js"))
         }
       }
 
