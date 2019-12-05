@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.kommando.argument
 
+import kotlin.jvm.JvmName
 import kotlin.reflect.KProperty
 
 /**

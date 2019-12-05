@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.kommando.argument
 
-import org.lanternpowered.kommando.NullContext
 import org.lanternpowered.kommando.ValidationContext
 
 /**
@@ -101,35 +100,6 @@ fun double(range: ClosedFloatingPointRange<Double>): Argument<Double, Any> = arg
     result(value)
   }
 }
-
-/**
- * Constructs a argument that parses the argument optionally.
- */
-fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argument {
-  val argument = this@optional
-  parse {
-    try {
-      argument.parse().asNullable()
-    } catch (ex: ArgumentParseException) {
-      result(null, ex.error)
-    }
-  }
-  suggest {
-    argument.suggest()
-  }
-}
-
-fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() -> T): Argument<T, S> = argument {
-  val argument = this@defaultBy
-  parse {
-    argument.parse().map { value -> value ?: defaultValue() }
-  }
-  suggest {
-    argument.suggest()
-  }
-}
-
-fun <T, S> Argument<T?, S>.default(defaultValue: T): Argument<T, S> = defaultBy { defaultValue }
 
 /**
  * Converts the output value.

@@ -28,9 +28,10 @@ fun doubleRange(): Argument<ClosedFloatingPointRange<Double>, Any>
     = range("double", -Double.MAX_VALUE, Double.MAX_VALUE, String::toDoubleOrNull) { start, end -> start..end }
 
 /**
- * Constructs a double [ClosedFloatingPointRange] argument.
+ * Constructs a float [ClosedFloatingPointRange] argument.
  */
-fun floatRange(): Argument<ClosedFloatingPointRange<Float>, Any>
+// TODO: Change back to ClosedFloatingPointRange, it's a bug in kotlin: https://youtrack.jetbrains.com/issue/KT-35299
+fun floatRange(): Argument<ClosedRange<Float>, Any>
     = range("float", -Float.MAX_VALUE, Float.MAX_VALUE, String::toFloatOrNull) { start, end -> start..end }
 
 private inline fun <R : ClosedRange<T>, T> range(
