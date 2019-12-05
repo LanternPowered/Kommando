@@ -102,7 +102,7 @@ val mcAdvancementCommand = command<Any> {
     println("/advancement $action <target: $target> everything")
   }
 
-  group {
+  groupBefore {
     val advancement by string()
 
     "only" {

@@ -264,11 +264,19 @@ interface BaseCommandBuilder<S> {
 
   /**
    * This function is useful is certain sub-commands require some
+   * arguments after the name of the sub-command.
+   * For example: '/name a|b <my-argument>' where a and b
+   * are sub-commands.
+   */
+  fun groupBefore(fn: BaseCommandBuilder<S>.() -> Unit)
+
+  /**
+   * This function is useful is certain sub-commands require some
    * arguments before the name of the sub-command.
    * For example: '/name <my-argument> a|b' where a and b
    * are sub-commands.
    */
-  fun group(fn: BaseCommandBuilder<S>.() -> Unit)
+  fun groupAfter(fn: BaseCommandBuilder<S>.() -> Unit)
 }
 
 @CommandDsl

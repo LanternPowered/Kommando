@@ -34,6 +34,10 @@ fun checkName(name: String) {
 
 internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuilder<S> {
 
+  override fun areArgumentRegistrationsAllowed(): Boolean {
+    return super.areArgumentRegistrationsAllowed()
+  }
+
   override fun execute(fn: NullContext.() -> Unit) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
@@ -62,7 +66,24 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
 
   override fun source(): Source<S> = SourceImpl()
 
+  /**
+   * Gets whether new argument/option/flag registrations are still allowed.
+   */
+  protected open fun areArgumentRegistrationsAllowed(): Boolean {
+    return this.commands.isEmpty()
+  }
+
+  /**
+   * Checks whether new argument/option/flag are still allowed.
+   */
+  private fun checkAllowArgumentRegistrations() {
+    check(areArgumentRegistrationsAllowed()) {
+      "It's no longer allowed to register the source, arguments, options or flags. This must be done before defining " +
+          "sub-commands or the executor." }
+  }
+
   override fun <N> Source<N>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, N> {
+    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     @Suppress("UNCHECKED_CAST")
     val property = SourceProperty(this as SourceImpl<S, N>)
     this@BaseCommandBuilderImpl.sourceProperties += property
@@ -70,12 +91,14 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun <T> Argument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     val property = ArgumentProperty(this, null)
     this@BaseCommandBuilderImpl.arguments += property
     return property
   }
 
   override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     this as NamedArgumentImpl<T, in S>
     val property = ArgumentProperty(this.argument, this.name)
     this@BaseCommandBuilderImpl.arguments += property
@@ -83,6 +106,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
+    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     @Suppress("UNCHECKED_CAST")
     this as FlagImpl<in S>
     val property = BaseOptionProperty(this)
@@ -91,6 +115,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     @Suppress("UNCHECKED_CAST")
     this as OptionImpl<T, in S>
     val property = BaseOptionProperty(this)
@@ -170,7 +195,13 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     }
   }
 
-  override fun group(fn: BaseCommandBuilder<S>.() -> Unit) {
+  override fun groupBefore(fn: BaseCommandBuilder<S>.() -> Unit) {
+    val builder = BaseCommandBuilderImpl<S>()
+    builder.fn()
+    // TODO
+  }
+
+  override fun groupAfter(fn: BaseCommandBuilder<S>.() -> Unit) {
     val builder = BaseCommandBuilderImpl<S>()
     builder.fn()
     // TODO

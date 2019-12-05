@@ -14,22 +14,51 @@ import kotlin.reflect.KProperty
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(first: String, second: String, vararg more: String): Argument<String, Any> {
-  return choice((arrayOf(first, second) + more).toList())
-}
+fun choice(first: String, second: String, vararg more: String): Argument<String, Any>
+    = choice((arrayOf(first, second) + more).toList())
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(values: List<String>): Argument<String, Any> {
-  return choice(values.associateWith { it })
-}
+fun choice(values: List<String>): Argument<String, Any>
+    = choice(values.associateWith { it })
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): Argument<V, Any> {
-  return choice((arrayOf(first, second) + more).toMap())
+fun choice(values: () -> List<String>): Argument<String, Any>
+    = choice(values) { it }
+
+/**
+ * Constructs a choices [Argument] based on the given values.
+ */
+fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): Argument<V, Any>
+    = choice((arrayOf(first, second) + more).toMap())
+
+/* TODO: Bug in kotlin, where the proper function can't be selected based on the return type.
+/**
+ * Constructs a choices [Argument] based on the given values.
+ */
+@JvmName("mapChoice")
+fun <V> choice(values: () -> Map<String, V>): Argument<String, Any> {
+  TODO()
+}
+*/
+
+private fun joinKeys(map: Map<String, *>) = map.keys.joinToString(", ")
+
+/**
+ * Constructs a choices [Argument] based on the given values.
+ */
+@JvmName("mapChoice")
+fun <V> choice(values: () -> List<V>, toName: (value: V) -> String): Argument<V, Any> = argument {
+  parse {
+    val key = parseString()
+    val map = values().associateBy(toName)
+    val value = map[key]
+    if (value != null) result(value) else error("Choice must be one of [${joinKeys(map)}], but found $key")
+  }
+  // TODO suggestions
 }
 
 /**
@@ -38,7 +67,7 @@ fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pai
 fun <V> choice(values: Map<String, V>): Argument<V, Any> = argument {
   check(values.isNotEmpty()) { "The values may not be empty" }
   val immutableValues = values.toMap()
-  val joinedKeys = immutableValues.keys.joinToString(", ")
+  val joinedKeys = joinKeys(immutableValues)
   parse {
     val key = parseString()
     val value = immutableValues[key]
@@ -54,7 +83,7 @@ fun <V> choice(values: Map<String, V>): Argument<V, Any> = argument {
 abstract class choices<T> : Argument<T, Any> {
 
   private val choices = mutableMapOf<String, T>()
-  private val joinedKeys by lazy { this.choices.keys.joinToString { ", " } }
+  private val joinedKeys by lazy { joinKeys(this.choices) }
 
   protected fun register(name: String, value: T): T {
     this.choices[name.toLowerCase()] = value
