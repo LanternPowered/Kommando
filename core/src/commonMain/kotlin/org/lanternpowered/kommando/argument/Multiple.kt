@@ -12,58 +12,28 @@ package org.lanternpowered.kommando.argument
 import org.lanternpowered.kommando.Message
 
 /**
- * Constructs an pair [Argument] that parses the target argument two times.
+ * Constructs a new argument that parses the argument multiple times.
  */
-fun <T, S> Argument<T, S>.pair(): Argument<Pair<T, T>, S> = pair(this, this)
+fun <T, S> Argument<T, S>.multiple(times: Int) = multiple(times..times)
 
 /**
- * Constructs an pair [Argument] based on the two given arguments.
+ * Constructs a new argument that parses the argument multiple times.
  */
-fun <A, B, S> pair(
-    first: Argument<A, in S>,
-    second: Argument<B, in S>
-): Argument<Pair<A, B>, S> = argument {
-  parse {
-    val a = first.parse()
-    val b = second.parse()
-    a + b
-  }
-  suggest {
-    if (!first.tryParse()) first.suggest() else second.suggest()
-  }
+fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): ListArgument<T, S> {
+  check(times.first >= 0) { "The minimum amount of times must not be negative, but found ${times.first}" }
+  check(times.last > 0) { "The maximum amount of times must be greater than 0, but found ${times.last}" }
+  return ListArgument(this, times)
 }
 
 /**
- * Constructs an pair [Argument] that parses the target argument three times.
+ * An argument that parses an argument multiple times.
  */
-fun <T, S> Argument<T, S>.triple(): Argument<Triple<T, T, T>, S> = triple(this, this, this)
+class ListArgument<T, S> internal constructor(
+    val argument: Argument<T, S>,
+    val times: IntRange = 1..Int.MAX_VALUE
+): Argument<List<T>, S> {
 
-/**
- * Constructs an [Argument] based on the three given arguments.
- */
-fun <A, B, C, S> triple(
-    first: Argument<A, in S>,
-    second: Argument<B, in S>,
-    third: Argument<C, in S>
-): Argument<Triple<A, B, C>, S> = argument {
-  parse {
-    val a = first.parse()
-    val b = second.parse()
-    val c = third.parse()
-    (a + b + c).map { pair -> Triple(pair.first.first, pair.first.second, pair.second) }
-  }
-  suggest {
-    when {
-      !first.tryParse() -> first.suggest()
-      !second.tryParse() -> second.suggest()
-      else -> third.suggest()
-    }
-  }
-}
-
-fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument<List<T>, S> = argument {
-  val argument = this@multiple
-  parse {
+  override fun parse(context: ArgumentParseContext<S>): ParseResult<List<T>> = context.run {
     val list = mutableListOf<T>()
     var potentialError: Message? = null
     for (i in 0 until times.last) {
@@ -85,17 +55,20 @@ fun <T, S> Argument<T, S>.multiple(times: IntRange = 1..Int.MAX_VALUE): Argument
     }
     result(list, potentialError)
   }
-  suggest {
+
+  override fun suggest(context: ArgumentParseContext<S>) = context.run {
     for (i in 0 until times.last) {
-      if (!argument.tryParse())
+      if (!argument.tryParseOrReset())
         break
     }
     argument.suggest()
   }
-  val rangeName = times.formatName()
-  name {
+
+  private val rangeName = times.formatName()
+
+  override fun transformName(baseName: String): String {
     val name = argument.transformName(baseName)
-    "$name{$rangeName}"
+    return "$name{$rangeName}"
   }
 }
 

@@ -26,7 +26,7 @@ interface Argument<T, S> {
   /**
    * Generates suggestions for the current argument that is being parsed.
    */
-  fun suggest(context: ArgumentParseContext<S>): List<String>
+  fun suggest(context: ArgumentParseContext<S>): List<String> = emptyList()
 
   /**
    * Generates a proper name for the given argument based on the base name.

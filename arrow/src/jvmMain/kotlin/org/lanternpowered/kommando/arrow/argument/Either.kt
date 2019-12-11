@@ -23,6 +23,8 @@ fun <A, B, S> either(a: Argument<A, in S>, b: Argument<B, in S>): Argument<Eithe
     }
   }
   suggest {
-    if (!a.tryParse()) a.suggest() else b.suggest()
+    val aList = if (!a.tryParseAndReset()) a.suggest() else emptyList()
+    val bList = if (!b.tryParseAndReset()) b.suggest() else emptyList()
+    aList + bList
   }
 }

@@ -24,7 +24,14 @@ interface ArgumentParseContext<S> : CommandContext<S>, ValidationContext {
    * and false if a failure. In case of a failure, the reading cursor
    * will be reset to the state before parsing.
    */
-  fun <T> Argument<T, in S>.tryParse(): Boolean
+  fun <T> Argument<T, in S>.tryParseOrReset(): Boolean
+
+  /**
+   * Tries to parse the argument, returns true if it was successful
+   * and false if a failure. Regardless of success or failure, the reading
+   * cursor state will be reset after parsing.
+   */
+  fun <T> Argument<T, in S>.tryParseAndReset(): Boolean
 
   fun <T> Argument<T, in S>.suggest(): List<String>
 
@@ -48,6 +55,8 @@ interface ArgumentParseContext<S> : CommandContext<S>, ValidationContext {
    * Parses the next argument as a unquoted [String].
    */
   fun parseUnquotedString(): String
+
+  fun parseRemainingString(): String
 
   fun parseChar(): Char
 

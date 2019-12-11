@@ -9,31 +9,31 @@
  */
 package org.lanternpowered.kommando.argument
 
-import kotlin.jvm.JvmName
+import org.lanternpowered.kommando.util.ToStringHelper
 import kotlin.reflect.KProperty
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(first: String, second: String, vararg more: String): Argument<String, Any>
+fun choice(first: String, second: String, vararg more: String): ChoicesArgument<String>
     = choice((arrayOf(first, second) + more).toList())
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(values: List<String>): Argument<String, Any>
+fun choice(values: List<String>): ChoicesArgument<String>
     = choice(values.associateWith { it })
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(values: () -> List<String>): Argument<String, Any>
+fun choice(values: () -> List<String>): DynamicChoicesArgument<String>
     = choice(values) { it }
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): Argument<V, Any>
+fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): ChoicesArgument<V>
     = choice((arrayOf(first, second) + more).toMap())
 
 /* TODO: Bug in kotlin, where the proper function can't be selected based on the return type.
@@ -46,48 +46,70 @@ fun <V> choice(values: () -> Map<String, V>): Argument<String, Any> {
 }
 */
 
-private fun joinKeys(map: Map<String, *>) = map.keys.joinToString(", ")
-
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-@JvmName("mapChoice")
-fun <V> choice(values: () -> List<V>, toName: (value: V) -> String): Argument<V, Any> = argument {
-  parse {
-    val key = parseString()
-    val map = values().associateBy(toName)
-    val value = map[key]
-    if (value != null) result(value) else error("Choice must be one of [${joinKeys(map)}], but found $key")
-  }
-  // TODO suggestions
-}
+fun <V> choice(values: () -> List<V>, toName: (value: V) -> String) = DynamicChoicesArgument { values().associateBy(toName) }
 
 /**
  * Constructs a choices [Argument] based on the given [values].
  */
-fun <V> choice(values: Map<String, V>): Argument<V, Any> = argument {
+fun <V> choice(values: Map<String, V>): ChoicesArgument<V> {
   check(values.isNotEmpty()) { "The values may not be empty" }
-  val immutableValues = values.toMap()
-  val joinedKeys = joinKeys(immutableValues)
-  parse {
+  return ConstantChoicesArgument(values.toMap())
+}
+
+/**
+ * An argument that handles choices.
+ */
+abstract class ChoicesArgument<V> internal constructor() : Argument<V, Any> {
+
+  /**
+   * The choices that are available for the argument.
+   */
+  abstract val choices: Map<String, V>
+
+  /**
+   * Gets the joined keys.
+   */
+  protected open val joinedKeys
+    get() = joinKeys(this.choices)
+
+  final override fun parse(context: ArgumentParseContext<Any>): ParseResult<V> = context.run {
     val key = parseString()
-    val value = immutableValues[key]
-    if (value != null) result(value) else error("Choice must be one of [$joinedKeys], but found $key")
+    val map = choices
+    val value = map[key] ?: error("Choice must be one of [$joinedKeys], but found $key")
+    result(value)
   }
-  // TODO suggestions
+
+  final override fun suggest(context: ArgumentParseContext<Any>): List<String> = listOf() // TODO
+}
+
+/**
+ * An argument that handles dynamic choices.
+ */
+class DynamicChoicesArgument<V> internal constructor(
+    val values: () -> Map<String, V>
+) : ChoicesArgument<V>() {
+
+  override val choices: Map<String, V>
+    get() = this.values()
 }
 
 /**
  * A base classes for local choices objects in the builder.
  */
 @Suppress("ClassName")
-abstract class choices<T> : Argument<T, Any> {
+abstract class choices<T> : ChoicesArgument<T>() {
 
-  private val choices = mutableMapOf<String, T>()
-  private val joinedKeys by lazy { joinKeys(this.choices) }
+  override val choices: Map<String, T>
+    get() = this.mutableChoices
+
+  private val mutableChoices = mutableMapOf<String, T>()
+  override val joinedKeys by lazy { joinKeys(this.mutableChoices) }
 
   protected fun register(name: String, value: T): T {
-    this.choices[name.toLowerCase()] = value
+    this.mutableChoices[name.toLowerCase()] = value
     return value
   }
 
@@ -110,11 +132,23 @@ abstract class choices<T> : Argument<T, Any> {
   @Suppress("NOTHING_TO_INLINE")
   protected inline operator fun T.getValue(thisRef: Any?, property: KProperty<*>) = this
 
-  final override fun parse(context: ArgumentParseContext<Any>): ParseResult<T> {
-    val key = context.parseString()
-    val value = choices[key]
-    return if (value != null) ParseResult(value) else error("Choice must be one of [$joinedKeys], but found $key")
-  }
+  final override fun toString(): String = ToStringHelper(this)
+      .add("choices", "[" + this.joinedKeys + "]")
+      .toString()
+}
 
-  final override fun suggest(context: ArgumentParseContext<Any>): List<String> = listOf() // TODO
+private fun joinKeys(map: Map<String, *>) = map.keys.joinToString(", ")
+
+/**
+ * A choices argument that uses constant choices, they will never be changed.
+ */
+private class ConstantChoicesArgument<V>(
+    override val choices: Map<String, V>
+) : ChoicesArgument<V>() {
+
+  override val joinedKeys = joinKeys(this.choices)
+
+  override fun toString(): String = ToStringHelper(this)
+      .add("choices", "[" + this.joinedKeys + "]")
+      .toString()
 }

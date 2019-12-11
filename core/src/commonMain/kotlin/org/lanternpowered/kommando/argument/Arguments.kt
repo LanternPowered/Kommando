@@ -11,95 +11,66 @@ package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.ValidationContext
 
-/**
- * Constructs a boolean [Argument].
+/*
+ * Usage formatting rules:
+ *
+ * Required argument:
+ *   <name: type>
+ *   <type>
+ *
+ * Optional argument:
+ *   [<name1: type1>]
+ *   [<type1>]
+ *   [<name1: type1> <name2: type2>]
+ *   [<type1> <type2>]
+ *
+ * Literal options (only when less then 5? and not dynamic):
+ *   add|remove|modify
+ *   [add|remove|modify]
+ *   <name: add|remove|modify>
+ *   [<name: add|remove|modify>]
+ *
+ * Literal and sub-commands:
+ *   -> Merge literal options and sub-commands into one usage.
+ *   -> But not for named/optional literals:
+ *      add|remove|modify|<name: these|are|literals>
+ *      add|remove|modify|[<name: these|are|literals>]
+ *      add|remove|modify|[these|are|literals]
+ *
+ * Sub-commands:
+ *   add|remove|modify
+ *
+ * Sub-commands or argument:
+ *   add|remove|modify|<name: type>
+ *   add|remove|modify|<type>
+ *
+ * Options: (always optional)
+ *   Long named options:
+ *     [--option <name1: type1>]
+ *     [--option <type1>]
+ *     [--option [<type1>]]
+ *     [--option <name1: type1>, --other <name2: type2>]
+ *     [--option <type1>, --other <type2>]
+ *     [--option add|remove|modify]
+ *
+ *   Short named options:
+ *     [-f <name1: type1>]
+ *     [-f <type1>]
+ *     [-fo <name1: type1> <name2: type2>]
+ *     [-fo <type1> <type2>]
+ *
+ * Flags: (always optional) (true if applied|false if not)
+ *   Long named flags:
+ *     [--flag]
+ *     [--flag, --other]
+ *
+ *   Short named flags
+ *     [-f]
+ *     [-fo]
+ *
+ * Examples:
+ *   /advancement
  */
-fun boolean(): Argument<Boolean, Any> = argument {
-  parse {
-    result(parseBoolean())
-  }
-  val suggestions = listOf("true", "false")
-  suggest {
-    suggestions
-  }
-}
-
-/**
- * Constructs a string [Argument].
- */
-fun string(): Argument<String, Any> = argument {
-  parse {
-    result(parseString())
-  }
-}
-
-fun int(): Argument<Int, Any> = argument {
-  parse {
-    result(parseInt())
-  }
-}
-
-fun int(range: IntRange): Argument<Int, Any> = argument {
-  parse {
-    val value = parseInt()
-    check(value >= range.first) {
-      "Int must not be less than ${range.first}, but found $value" }
-    check(value <= range.last) {
-      "Int must not be greater than ${range.last}, but found $value" }
-    result(value)
-  }
-}
-
-fun long(): Argument<Long, Any> = argument {
-  parse {
-    result(parseLong())
-  }
-}
-
-fun long(range: LongRange): Argument<Long, Any> = argument {
-  parse {
-    val value = parseLong()
-    check(value >= range.first) {
-      "Long must not be less than ${range.first}, but found $value" }
-    check(value <= range.last) {
-      "Long must not be greater than ${range.last}, but found $value" }
-    result(value)
-  }
-}
-
-fun float(): Argument<Float, Any> = argument {
-  parse {
-    result(parseFloat())
-  }
-}
-
-fun float(range: ClosedFloatingPointRange<Float>): Argument<Float, Any> = argument {
-  parse {
-    val value = parseFloat()
-    check(value >= range.start) {
-      "Float must not be less than ${range.start}, but found $value" }
-    check(value <= range.endInclusive) {
-      "Float must not be greater than ${range.endInclusive}, but found $value" }
-    result(value)
-  }
-}
-
-fun double(): Argument<Double, Any> = argument {
-  parse {
-    result(parseDouble())
-  }
-}
-
-fun double(range: ClosedFloatingPointRange<Double>): Argument<Double, Any> = argument {
-  parse {
-    val value = parseDouble()
-    check(value >= range.start) {
-      "Double must not be less than ${range.start}, but found $value" }
-    check(value <= range.endInclusive) {
-      "Double must not be greater than ${range.endInclusive}, but found $value" }
-    result(value)
-  }
-}
 
 /**
  * Converts the output value.

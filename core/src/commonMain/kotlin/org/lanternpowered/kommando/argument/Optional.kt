@@ -12,16 +12,26 @@ package org.lanternpowered.kommando.argument
 /**
  * Constructs a argument that parses the argument optionally.
  */
-fun <T, S> Argument<T, S>.optional(): Argument<T?, S> = argument {
-  val argument = this@optional
-  parse {
+fun <T, S> Argument<T, S>.optional() = OptionalArgument(this)
+
+/**
+ * An argument that parses arguments optionally.
+ *
+ * @property argument The argument that is being parsed optionally
+ */
+class OptionalArgument<T, S> internal constructor(
+    val argument: Argument<T, S>
+) : Argument<T?, S> {
+
+  override fun parse(context: ArgumentParseContext<S>) = context.run {
     try {
       argument.parse().asNullable()
     } catch (ex: ArgumentParseException) {
       result(null, ex.error)
     }
   }
-  suggest {
+
+  override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
   }
 }
