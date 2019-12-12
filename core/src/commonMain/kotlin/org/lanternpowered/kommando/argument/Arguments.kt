@@ -75,28 +75,50 @@ import org.lanternpowered.kommando.ValidationContext
 /**
  * Converts the output value.
  */
-fun <T, N, S> Argument<T, S>.convert(fn: ValidationContext.(T) -> N): Argument<N, S> = argument {
-  val argument = this@convert
-  parse {
-    argument.parse().map { fn(it) }
+fun <T, N, S> Argument<T, S>.convert(fn: ValidationContext.(T) -> N) = ConvertedArgument(this, fn)
+
+/**
+ * A arguments that transforms the parsed value
+ * from the specified argument.
+ */
+class ConvertedArgument<T, N, S>(
+    val argument: Argument<T, S>,
+    val converter: ValidationContext.(T) -> N
+) : Argument<N, S> {
+
+  override fun parse(context: ArgumentParseContext<S>) = context.run {
+    argument.parse().map { converter(it) }
   }
-  suggest {
+
+  override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
   }
-  name {
-    argument.transformName(baseName)
-  }
+
+  override fun transformName(baseName: String) = argument.transformName(baseName)
 }
 
-fun <T, S> Argument<T, S>.validate(fn: ValidationContext.(T) -> Unit): Argument<T, S> = argument {
-  val argument = this@validate
-  parse {
-    argument.parse().also { fn(it.value) }
+/**
+ * Validates the output value.
+ */
+fun <T, S> Argument<T, S>.validate(fn: ValidationContext.(T) -> Unit) = ValidatedArgument(this, fn)
+
+/**
+ * A arguments that validates the parsed value
+ * from the specified argument.
+ */
+class ValidatedArgument<T, S>(
+    val argument: Argument<T, S>,
+    val validator: ValidationContext.(T) -> Unit
+) : Argument<T, S> {
+
+  override fun parse(context: ArgumentParseContext<S>) = context.run {
+    argument.parse().also { validator(it.value) }
   }
-  suggest {
+
+  override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
   }
-  name {
-    argument.transformName(baseName)
-  }
+
+  override fun transformName(baseName: String) = argument.transformName(baseName)
 }
+

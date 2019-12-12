@@ -16,39 +16,52 @@ package org.lanternpowered.kommando.argument
  * can be escaped so that they are read literal. If no quotes are specified,
  * only a single word will be read.
  */
-fun string() = StringArgument()
+fun string() = QuotableStringArgument()
+
+/**
+ * A string [Argument] that parses a quotable string.
+ *
+ * If quotes are specified, it will be parsing until the next quote. Quotes
+ * can be escaped so that they are read literal. If no quotes are specified,
+ * only a single word will be read.
+ */
+class QuotableStringArgument internal constructor() : Argument<String, Any> {
+
+  override fun parse(context: ArgumentParseContext<Any>) = context.run {
+    result(parseString())
+  }
+}
 
 /**
  * Constructs a string [Argument] that parses a string from all the
  * remaining content. It ignores any quotes, everything will be read
  * literally.
  */
-fun rawRemainingString() = StringArgument(StringParseMode.RemainingPhrase)
+fun rawRemainingString() = RawRemainingStringArgument()
 
 /**
- * Constructs a string [Argument] that parses one word.
+ * A string [Argument] that parses a string from all the
+ * remaining content. It ignores any quotes, everything will be read
+ * literally.
  */
-fun word(): Argument<String, Any> = StringArgument(StringParseMode.SingleWord)
+class RawRemainingStringArgument internal constructor() : Argument<String, Any> {
 
-/**
- * Represents the mode for parsing strings.
- */
-enum class StringParseMode {
-  SingleWord,
-  QuotablePhrase,
-  RemainingPhrase,
+  override fun parse(context: ArgumentParseContext<Any>) = context.run {
+    result(parseRemainingString())
+  }
 }
 
 /**
- * An argument that parses string values.
+ * Constructs a string [Argument] that a single word.
  */
-data class StringArgument(val mode: StringParseMode = StringParseMode.QuotablePhrase) : Argument<String, Any> {
+fun word() = SingleWordArgument()
+
+/**
+ * Constructs a string [Argument] that parses a single word.
+ */
+class SingleWordArgument internal constructor() : Argument<String, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    result(when (mode) {
-      StringParseMode.SingleWord -> parseUnquotedString()
-      StringParseMode.QuotablePhrase -> parseString()
-      StringParseMode.RemainingPhrase -> parseRemainingString()
-    })
+    result(parseUnquotedString())
   }
 }

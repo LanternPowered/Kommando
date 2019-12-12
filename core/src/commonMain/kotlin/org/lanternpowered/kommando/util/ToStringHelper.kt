@@ -164,7 +164,8 @@ class ToStringHelper constructor(
    */
   enum class Brackets(
       internal val open: Char,
-      internal val close: Char) {
+      internal val close: Char
+  ) {
     ROUND   ('(', ')'),
     CURLY   ('{', '}'),
     SQUARE  ('[', ']'),
