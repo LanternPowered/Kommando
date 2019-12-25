@@ -19,7 +19,6 @@ import org.lanternpowered.kommando.NullContext
 import org.lanternpowered.kommando.Option
 import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
-import org.lanternpowered.kommando.argument.ArgumentBuilder
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -171,9 +170,6 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S> = NamedArgumentImpl(name, this)
-
-  override fun <T> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S>
-      = ArgumentBuilderImpl<T, S>().apply(fn).build()
 
   override fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit) {
     val builder = CommandBuilderImpl<S>()
