@@ -10,7 +10,6 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.CommandDsl
-import org.lanternpowered.kommando.impl.ArgumentBuilderImpl
 
 /**
  * Represents an argument that can be parsed.
@@ -33,23 +32,3 @@ interface Argument<T, S> {
    */
   fun transformName(baseName: String): String = baseName
 }
-
-/**
- * Constructs a new [Argument].
- */
-// TODO: Builder inference, once https://youtrack.jetbrains.com/issue/KT-35306 is fixed
-fun <T, S> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S> {
-  return ArgumentBuilderImpl<T, S>().apply(fn).build()
-}
-
-@CommandDsl
-interface ArgumentBuilder<T, S> {
-
-  fun parse(fn: ArgumentParseContext<S>.() -> ParseResult<T>)
-
-  fun suggest(fn: ArgumentParseContext<S>.() -> List<String>)
-
-  fun name(fn: BaseName.() -> String)
-}
-
-inline class BaseName(val baseName: String)

@@ -78,7 +78,7 @@ import org.lanternpowered.kommando.ValidationContext
 fun <T, N, S> Argument<T, S>.convert(fn: ValidationContext.(T) -> N) = ConvertedArgument(this, fn)
 
 /**
- * A arguments that transforms the parsed value
+ * An argument that transforms the parsed value
  * from the specified argument.
  */
 class ConvertedArgument<T, N, S>(

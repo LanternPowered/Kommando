@@ -11,20 +11,39 @@ package org.lanternpowered.kommando.arrow.argument
 
 import arrow.core.Either
 import org.lanternpowered.kommando.argument.Argument
+import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.argument.ArgumentParseException
-import org.lanternpowered.kommando.argument.argument
+import org.lanternpowered.kommando.argument.ParseResult
 
-fun <A, B, S> either(a: Argument<A, in S>, b: Argument<B, in S>): Argument<Either<A, B>, S> = argument {
-  parse {
+/**
+ * Constructs an argument that either parses the [left]
+ * argument type, or the other one [right].
+ *
+ * @param left The first argument type
+ * @param right The second argument type
+ */
+fun <L, R, S> either(left: Argument<L, in S>, right: Argument<R, in S>) = EitherArgument(left, right)
+
+/**
+ * An argument that either parses the [left]
+ * argument type, or the other one [right].
+ *
+ * @property left The first argument type
+ * @property right The second argument type
+ */
+class EitherArgument<L, R, S>(val left: Argument<L, in S>, val right: Argument<R, in S>) : Argument<Either<L, R>, S> {
+
+  override fun parse(context: ArgumentParseContext<S>): ParseResult<Either<L, R>> = context.run {
     try {
-      a.parse().map { Either.left(it) }
+      left.parse().map { Either.left(it) }
     } catch (ex: ArgumentParseException) {
-      b.parse().map { Either.right(it) }
+      right.parse().map { Either.right(it) }
     }
   }
-  suggest {
-    val aList = if (!a.tryParseAndReset()) a.suggest() else emptyList()
-    val bList = if (!b.tryParseAndReset()) b.suggest() else emptyList()
+
+  override fun suggest(context: ArgumentParseContext<S>) = context.run {
+    val aList = if (!left.tryParseAndReset()) left.suggest() else emptyList()
+    val bList = if (!right.tryParseAndReset()) right.suggest() else emptyList()
     aList + bList
   }
 }

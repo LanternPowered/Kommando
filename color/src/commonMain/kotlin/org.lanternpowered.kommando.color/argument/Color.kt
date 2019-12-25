@@ -10,7 +10,7 @@
 package org.lanternpowered.kommando.color.argument
 
 import org.lanternpowered.kommando.argument.Argument
-import org.lanternpowered.kommando.argument.argument
+import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.color.Color
 import org.lanternpowered.kommando.color.Colors
 import org.lanternpowered.kommando.util.clamp
@@ -43,15 +43,29 @@ private val inbuiltPresets = mapOf(
 )
 
 /**
- * Constructs a color argument.
+ * Constructs a new color [Argument].
  */
-fun color(presets: Map<String, Color> = inbuiltPresets): Argument<Color, Any> = argument {
-  val immutablePresets = presets.toMap()
-  parse {
+fun color() = ColorArgument()
+
+/**
+ * Constructs a new color [Argument] with the specified presents.
+ *
+ * @param presets The presets which are colors that can be specified by name
+ */
+fun color(presets: Map<String, Color> = inbuiltPresets) = ColorArgument(presets.toMap())
+
+/**
+ * An argument that parses color values.
+ *
+ * @property presets The presets which are colors that can be specified by name
+ */
+class ColorArgument internal constructor(val presets: Map<String, Color> = inbuiltPresets) : Argument<Color, Any> {
+
+  override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val cursor = this.cursor
     val value = parseUnquotedString()
     // Try as preset
-    val color = immutablePresets[value]
+    val color = presets[value]
     if (color != null)
       return@parse result(color)
     // Try as hex value
@@ -64,9 +78,11 @@ fun color(presets: Map<String, Color> = inbuiltPresets): Argument<Color, Any> = 
     // Reset cursor
     this.cursor = cursor
     // Try as RGB values
-    val red = clamp(parseFloat(), 0f..1.0f)
-    val green = clamp(parseFloat(), 0f..1.0f)
-    val blue = clamp(parseFloat(), 0f..1.0f)
+    val red = clamp(parseFloat(), 0f..1f)
+    val green = clamp(parseFloat(), 0f..1f)
+    val blue = clamp(parseFloat(), 0f..1f)
     result(Color(red, green, blue))
   }
+
+  // TODO: Suggest
 }

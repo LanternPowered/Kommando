@@ -14,7 +14,10 @@ import org.lanternpowered.kommando.Message
 /**
  * Constructs a new argument that parses the argument multiple times.
  */
-fun <T, S> Argument<T, S>.multiple(times: Int) = multiple(times..times)
+fun <T, S> Argument<T, S>.multiple(times: Int): ListArgument<T, S> {
+  check(times > 0) { "The amount of times must be greater than 0, but found $times" }
+  return multiple(times..times)
+}
 
 /**
  * Constructs a new argument that parses the argument multiple times.

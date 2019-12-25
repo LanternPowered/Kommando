@@ -10,7 +10,6 @@
 package org.lanternpowered.kommando
 
 import org.lanternpowered.kommando.argument.Argument
-import org.lanternpowered.kommando.argument.ArgumentBuilder
 import org.lanternpowered.kommando.impl.CommandBuilderImpl
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -120,12 +119,6 @@ interface BaseCommandBuilder<S> {
    * Names the argument with the specified name.
    */
   fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S>
-
-  /**
-   * Constructs a new [Argument].
-   */
-  // TODO: Builder inference, once https://youtrack.jetbrains.com/issue/KT-35306 is fixed
-  fun <T> argument(fn: ArgumentBuilder<T, S>.() -> Unit): Argument<T, S>
 
   /**
    * Builds and registers a sub-command.

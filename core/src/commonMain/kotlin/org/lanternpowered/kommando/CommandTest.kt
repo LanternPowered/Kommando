@@ -43,12 +43,6 @@ val testCommand = command<Any> {
       .optional()
       .default("unknown")
 
-  val test by argument<Int> {
-    parse {
-      result(1)
-    }
-  }.name("test-argument")
-
   // --my-flag
   val flagValue by flag("--my-flag", "-f")
 
