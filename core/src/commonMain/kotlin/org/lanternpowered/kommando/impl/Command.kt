@@ -12,19 +12,22 @@ package org.lanternpowered.kommando.impl
 import org.lanternpowered.kommando.BaseCommandBuilder
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
+import org.lanternpowered.kommando.CommandContext
 import org.lanternpowered.kommando.ExecutableCommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.NullContext
-import org.lanternpowered.kommando.Option
 import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
+import org.lanternpowered.kommando.tree.CommandTree
+import org.lanternpowered.kommando.tree.TreeElement
+import org.lanternpowered.kommando.tree.TreeFlag
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 private val nameRegex = "^[A-Za-z0-9][A-Za-z0-9-_]*$".toRegex()
 
-fun checkName(name: String) {
+internal fun checkName(name: String) {
   if (nameRegex.matchEntire(name) != null)
     return
   throw IllegalArgumentException("Invalid name: $name, only the following characters are " +
@@ -57,7 +60,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   private val sourceProperties = mutableListOf<SourceProperty<S, *>>()
   private val arguments = mutableListOf<ArgumentProperty<*>>()
   private val commands = mutableListOf<BoundCommand<S>>()
-  private val options = mutableListOf<BaseOptionProperty<*>>()
+  private val options = mutableListOf<FlagProperty<*>>()
 
   fun build(): Command<S> {
     TODO()
@@ -104,25 +107,16 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     return property
   }
 
-  override fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
+  override fun <T> Flag<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
     this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     @Suppress("UNCHECKED_CAST")
-    this as FlagImpl<in S>
-    val property = BaseOptionProperty(this)
+    this as FlagImpl<T, in S>
+    val property = FlagProperty(this)
     this@BaseCommandBuilderImpl.options += property
     return property
   }
 
-  override fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
-    @Suppress("UNCHECKED_CAST")
-    this as OptionImpl<T, in S>
-    val property = BaseOptionProperty(this)
-    this@BaseCommandBuilderImpl.options += property
-    return property
-  }
-
-  private fun parseFlagNames(name: String, more: List<String>): OptionNames {
+  private fun parseFlagNames(name: String, more: List<String>): FlagNamesImpl {
     val names = listOf(name) + more.toList()
     val shortNames = mutableListOf<Char>()
     val longNames = mutableListOf<String>()
@@ -145,31 +139,32 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
         else -> error("Invalid flag name format, expected --name or -n, but found $it")
       }
     }
-    return OptionNames(longNames, shortNames)
+    return FlagNamesImpl(longNames, shortNames)
   }
 
-  override fun flag(name: String, vararg more: String): Flag {
-    return FlagImpl<S>(parseFlagNames(name, more.asList()))
+  override fun flag(name: String, vararg more: String): Flag<Boolean, S> {
+    return FlagImpl.TrueIfPresent(parseFlagNames(name, more.asList()))
   }
 
-  override fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T?, S> {
+  override fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T?, S> {
     @Suppress("UNCHECKED_CAST")
-    return OptionImpl(this as Argument<T?, S>, null, this@BaseCommandBuilderImpl.parseFlagNames(name, more.asList()))
+    return FlagImpl.Argument(this as Argument<T?, S>,
+        null, this@BaseCommandBuilderImpl.parseFlagNames(name, more.asList()))
   }
 
-  override fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S> {
-    this as OptionImpl<T?, S>
+  override fun <T, S> Flag<T?, S>.default(defaultValue: T): Flag<T, S> {
+    this as FlagImpl.Argument<T?, S>
     @Suppress("UNCHECKED_CAST")
-    return OptionImpl(this.argument as Argument<T, S>, { defaultValue }, this.names)
+    return FlagImpl.Argument(this.argument as Argument<T, S>, { defaultValue }, this.names)
   }
 
-  override fun <T, S> Option<T?, S>.defaultBy(defaultValue: () -> T): Option<T, S> {
-    this as OptionImpl<T?, S>
+  override fun <T, S> Flag<T?, S>.defaultBy(defaultValue: () -> T): Flag<T, S> {
+    this as FlagImpl.Argument<T?, S>
     @Suppress("UNCHECKED_CAST")
-    return OptionImpl(this.argument as Argument<T, S>, defaultValue, this.names)
+    return FlagImpl.Argument(this.argument as Argument<T, S>, defaultValue, this.names)
   }
 
-  override fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S> = NamedArgumentImpl(name, this)
+  override fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S> = NamedArgumentImpl(name, this)
 
   override fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit) {
     val builder = CommandBuilderImpl<S>()
@@ -201,5 +196,40 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     val builder = BaseCommandBuilderImpl<S>()
     builder.fn()
     // TODO
+  }
+}
+
+internal abstract class AbstractTeeElement<S>(
+    override val children: List<TreeElement<S>>,
+    override val flags: List<TreeFlag<S>>,
+    val executor: (NullContext.() -> Unit)?
+) : TreeElement<S> {
+
+  override val executable: Boolean
+    get() = this.executor != null
+
+  fun parse() {
+
+  }
+}
+
+internal class TreeArgumentElement<T, S>(
+    children: List<TreeElement<S>>,
+    flags: List<TreeFlag<S>>,
+    override val argument: Argument<T, S>,
+    val argumentProperty: ArgumentProperty<T>,
+    executor: (NullContext.() -> Unit)?
+) : AbstractTeeElement<S>(children, flags, executor), TreeElement.Argument<S>
+
+internal class TreeRootElement<S>(
+    children: List<TreeElement<S>>,
+    flags: List<TreeFlag<S>>,
+    executor: (NullContext.() -> Unit)?
+) : AbstractTeeElement<S>(children, flags, executor), TreeElement.Root<S>
+
+internal class CommandTreeImpl<S>(override val rootElement: TreeElement.Root<S>) : CommandTree<S> {
+
+  override fun execute(context: CommandContext<S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

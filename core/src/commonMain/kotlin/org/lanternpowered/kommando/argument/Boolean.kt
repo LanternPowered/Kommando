@@ -25,5 +25,5 @@ class BooleanArgument internal constructor() : Argument<Boolean, Any> {
     result(parseBoolean())
   }
 
-  override fun suggest(context: ArgumentParseContext<Any>) = suggestions
+  override fun suggest(context: ArgumentParseContext<Any>) = this.suggestions
 }

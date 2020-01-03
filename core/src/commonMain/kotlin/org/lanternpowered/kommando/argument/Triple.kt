@@ -12,12 +12,14 @@ package org.lanternpowered.kommando.argument
 /**
  * Constructs a triple [Argument] that parses the target argument three times.
  */
-fun <T, S> Argument<T, S>.triple() = triple(this, this, this)
+fun <T, S> Argument<T, S>.triple()
+    = TripleArgument(this, this, this)
 
 /**
  * Constructs a triple [Argument] based on the three given arguments.
  */
-fun <A, B, C, S> triple(first: Argument<A, in S>, second: Argument<B, in S>, third: Argument<C, in S>) = TripleArgument(first, second, third)
+fun <A, B, C, S> triple(first: Argument<A, in S>, second: Argument<B, in S>, third: Argument<C, in S>)
+    = TripleArgument(first, second, third)
 
 /**
  * An argument that parses triples based on the [first], [second] and [third] arguments.

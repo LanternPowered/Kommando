@@ -9,14 +9,18 @@
  */
 package org.lanternpowered.kommando
 
-import org.lanternpowered.kommando.argument.choices
 import org.lanternpowered.kommando.argument.boolean
+import org.lanternpowered.kommando.argument.choices
 import org.lanternpowered.kommando.argument.convert
 import org.lanternpowered.kommando.argument.default
+import org.lanternpowered.kommando.argument.double
 import org.lanternpowered.kommando.argument.int
 import org.lanternpowered.kommando.argument.multiple
 import org.lanternpowered.kommando.argument.optional
+import org.lanternpowered.kommando.argument.options
+import org.lanternpowered.kommando.argument.rawRemainingString
 import org.lanternpowered.kommando.argument.string
+import org.lanternpowered.kommando.argument.suggest
 import org.lanternpowered.kommando.argument.validate
 
 val otherCommand = command<Any> {
@@ -33,22 +37,38 @@ val testCommand = command<Any> {
   val bool by boolean()
       .optional()
       .default(false)
-      .name("my_boolean_value")
+      .suggest {
+        listOf("true")
+      } named "my_boolean_value"
 
   val converted by boolean()
       .convert { it.toString() + bool }
+      .suggest("test", "other")
       .validate {
         check(it.isNotEmpty())
       }
       .optional()
       .default("unknown")
 
+  // test <arg>
+  // test_1 <arg>
+  // test_1 <arg> test_2 <arg>
+  // test_2 <arg> test_1 <arg> test <arg>
+  // test_2 <arg> test_1 <arg> test_3 <arg>
+  // test_2 <arg> test_1 <arg> test_2 <arg> test_2 <arg>
+  val options = object : options() {
+    val test by boolean()
+    val test1 by int() named "test_1"
+    val test2 by double().repeatable() named "test_2"
+    val test3 by double().multiple() named "test_3"
+  }
+
   // --my-flag
   val flagValue by flag("--my-flag", "-f")
 
-  // --my-option 100
-  // --my-option=100
-  val optionValue by int().option("--my-option", "-o")
+  // --my-other-flag 100
+  // --my-other-flag=100
+  val otherFlagValue by int().flag("--my-other-flag", "-o")
 
   // Add children based on other commands
   subcommand("name", "alias", "more", otherCommand)
@@ -63,7 +83,7 @@ val testCommand = command<Any> {
 
   // Define sub commands in this builder
   "sub-command" {
-    val another by int(1..100).multiple().name("values")
+    val another by int(1..100).multiple() named "values"
 
     execute {
       println("/<$value> <$bool> sub-command <$another>")
@@ -79,6 +99,40 @@ val testCommand = command<Any> {
   }
 }
 
+val mcExecuteCommand = command<Any> {
+  val source by source()
+
+  // TODO: Figure even more advanced structures, for
+  //       options that take multiple arguments, etc.
+
+  val anchor = object : choices<String>() {
+    val eyes by "eyes"
+    val feet by "feet"
+  }
+
+  val options = object : options() {
+    val align by string() // Axis
+    val anchored by anchor
+  }
+
+  // /execute align <axis> anchored <anchor>
+  // /execute align <axis>
+  // /execute anchored <anchor> align <axis>
+  // /execute anchored <anchor>
+
+  "run" {
+    val command by rawRemainingString() // TODO: Allow to redirect to other commands? Special argument type?
+
+    execute {
+      // /execute align <axis> anchored <anchor> run <command>
+      // /execute align <axis> run <command>
+      // /execute anchored <anchor> align <axis> run <command>
+      // /execute anchored <anchor> run <command>
+      println("/advancement align <axis: ${options.align}> anchored <${options.anchored}> run <$command>")
+    }
+  }
+}
+
 val mcAdvancementCommand = command<Any> {
   val source by source()
 
@@ -86,7 +140,7 @@ val mcAdvancementCommand = command<Any> {
 
   val actions = object : choices<String>() {
     val grant by "grant"
-    val revoke by "revoke" to "revoke"
+    val revoke by "revoke" named "revoke"
   }
 
   val action by actions

@@ -89,11 +89,11 @@ abstract class ChoicesArgument<V> internal constructor() : Argument<V, Any> {
  * An argument that handles dynamic choices.
  */
 class DynamicChoicesArgument<V> internal constructor(
-    val values: () -> Map<String, V>
+    private val provider: () -> Map<String, V>
 ) : ChoicesArgument<V>() {
 
   override val choices: Map<String, V>
-    get() = this.values()
+    get() = this.provider()
 }
 
 /**
@@ -108,13 +108,17 @@ abstract class choices<T> : ChoicesArgument<T>() {
   private val mutableChoices = mutableMapOf<String, T>()
   override val joinedKeys by lazy { joinKeys(this.mutableChoices) }
 
+  /**
+   * Registers the value and maps it to the name.
+   */
   protected fun register(name: String, value: T): T {
     this.mutableChoices[name.toLowerCase()] = value
     return value
   }
 
   /**
-   * Gets a delegate to access the source.
+   * Gets a delegate to access the source. The name of the
+   * property will be used as name for the mapping.
    */
   @Suppress("NOTHING_TO_INLINE")
   protected inline operator fun T.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
@@ -125,12 +129,22 @@ abstract class choices<T> : ChoicesArgument<T>() {
    * Gets a delegate to access the source.
    */
   @Suppress("NOTHING_TO_INLINE")
-  protected inline operator fun Pair<String, T>.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
-    return register(this.first, this.second)
+  protected inline operator fun NamedChoice<T>.provideDelegate(thisRef: Any?, prop: KProperty<*>): T {
+    return register(this.name, this.value)
   }
 
   @Suppress("NOTHING_TO_INLINE")
   protected inline operator fun T.getValue(thisRef: Any?, property: KProperty<*>) = this
+
+  /**
+   * Uses the specified name for the given value.
+   */
+  infix fun T.named(name: String) = NamedChoice(name, this)
+
+  /**
+   * Represents a choice that has been named.
+   */
+  inner class NamedChoice<T>(val name: String, val value: T)
 
   final override fun toString(): String = ToStringHelper(this)
       .add("choices", "[" + this.joinedKeys + "]")

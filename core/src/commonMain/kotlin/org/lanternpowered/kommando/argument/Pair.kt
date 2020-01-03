@@ -12,12 +12,14 @@ package org.lanternpowered.kommando.argument
 /**
  * Constructs a pair [Argument] that parses the target argument two times.
  */
-fun <T, S> Argument<T, S>.pair() = pair(this, this)
+fun <T, S> Argument<T, S>.pair()
+    = PairArgument(this, this)
 
 /**
  * Constructs a pair [Argument] based on the two given arguments.
  */
-fun <A, B, S> pair(first: Argument<A, in S>, second: Argument<B, in S>) = PairArgument(first, second)
+fun <A, B, S> pair(first: Argument<A, in S>, second: Argument<B, in S>)
+    = PairArgument(first, second)
 
 /**
  * An argument that parses pairs based on the [first] and [second] arguments.

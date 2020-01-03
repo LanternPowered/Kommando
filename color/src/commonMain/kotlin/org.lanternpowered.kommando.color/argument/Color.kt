@@ -13,7 +13,6 @@ import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.color.Color
 import org.lanternpowered.kommando.color.Colors
-import org.lanternpowered.kommando.util.clamp
 
 /**
  * The inbuilt color presets, will can be used by name.
@@ -78,9 +77,9 @@ class ColorArgument internal constructor(val presets: Map<String, Color> = inbui
     // Reset cursor
     this.cursor = cursor
     // Try as RGB values
-    val red = clamp(parseFloat(), 0f..1f)
-    val green = clamp(parseFloat(), 0f..1f)
-    val blue = clamp(parseFloat(), 0f..1f)
+    val red = parseFloat().coerceIn(0f..1f)
+    val green = parseFloat().coerceIn(0f..1f)
+    val blue = parseFloat().coerceIn(0f..1f)
     result(Color(red, green, blue))
   }
 

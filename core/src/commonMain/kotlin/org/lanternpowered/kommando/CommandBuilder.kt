@@ -23,14 +23,11 @@ fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S>
 @CommandDsl
 interface NamedArgument<T, S>
 
-@CommandDsl
-interface Option<T, S>
-
 /**
  * Represents a flag.
  */
 @CommandDsl
-interface Flag
+interface Flag<T, S>
 
 @CommandDsl
 interface Source<S> {
@@ -67,7 +64,7 @@ interface BaseCommandBuilder<S> {
    * Accessing the argument value outside the execution of the command will result
    * in an [IllegalStateException].
    */
-  operator fun Flag.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean>
+  operator fun <T> Flag<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
 
   /**
    * Registers a new argument to the command builder. The name of the property will
@@ -87,38 +84,29 @@ interface BaseCommandBuilder<S> {
   operator fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
 
   /**
-   * Registers a new option to the command builder. The name of the property will
-   * be used as base name for the argument.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
    * Creates a new flag.
    */
-  fun flag(name: String, vararg more: String): Flag
+  fun flag(name: String, vararg more: String): Flag<Boolean, S>
 
   /**
-   * Converts the argument into an option.
+   * Converts the argument into an flag.
    */
-  fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T?, S>
+  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T?, S>
 
   /**
-   * Makes the option return a default value if the option isn't specified.
+   * Makes the flag return a default value if the flag isn't specified.
    */
-  fun <T, S> Option<T?, S>.default(defaultValue: T): Option<T, S>
+  fun <T, S> Flag<T?, S>.default(defaultValue: T): Flag<T, S>
 
   /**
-   * Makes the option return a default value if the option isn't specified.
+   * Makes the flag return a default value if the flag isn't specified.
    */
-  fun <T, S> Option<T?, S>.defaultBy(defaultValue: () -> T): Option<T, S>
+  fun <T, S> Flag<T?, S>.defaultBy(defaultValue: () -> T): Flag<T, S>
 
   /**
    * Names the argument with the specified name.
    */
-  fun <T, S> Argument<T, S>.name(name: String): NamedArgument<T, S>
+  infix fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S>
 
   /**
    * Builds and registers a sub-command.

@@ -46,7 +46,8 @@ fun <T, S> Argument<T?, S>.default(defaultValue: T): Argument<T, S> = defaultBy 
  * Constructs en argument that falls back to a default value if the
  * backing argument is parsed as null.
  */
-fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() -> T) = DefaultedOptionalArgument(this, defaultValue)
+fun <T, S> Argument<T?, S>.defaultBy(defaultValue: ArgumentParseContext<S>.() -> T)
+    = DefaultedOptionalArgument(this, defaultValue)
 
 /**
  * An argument that falls back to a default value if the
