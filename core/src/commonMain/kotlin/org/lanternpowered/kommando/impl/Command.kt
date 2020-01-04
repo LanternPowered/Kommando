@@ -19,6 +19,8 @@ import org.lanternpowered.kommando.ExecutableCommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.ExecutionContext
+import org.lanternpowered.kommando.MappedOptions
+import org.lanternpowered.kommando.MappedOptionsBuilder
 import org.lanternpowered.kommando.Option
 import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
@@ -223,10 +225,6 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun <T> option(name: String, vararg more: String, builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
   override fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
@@ -264,6 +262,18 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> options(builder: MappedOptionsBuilder<T, S>.() -> Unit): MappedOptions<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> MappedOptions<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> BuiltArgument<T, S>.option(name: String, vararg more: String): Option<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

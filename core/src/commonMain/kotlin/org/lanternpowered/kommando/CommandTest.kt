@@ -21,6 +21,7 @@ import org.lanternpowered.kommando.argument.rawRemainingString
 import org.lanternpowered.kommando.argument.string
 import org.lanternpowered.kommando.argument.suggest
 import org.lanternpowered.kommando.argument.validate
+import org.lanternpowered.kommando.argument.word
 
 val otherCommand = command<Any> {
 
@@ -69,13 +70,42 @@ val testCommand = command<Any> {
   val options = object {
     val test by boolean().option("test") // test true|false
     val test1 by int().option("test_1") // test_1 <int>
-    val test2 by option("test_2", "alias") { // test_2 <double> <double>
+    val test2 by argument { // test_2 <double> <double>
       val a by double()
       val b by double()
       convert {
         a + b
       }
-    }
+    }.option("test_2", "alias")
+  }
+
+  // first <int> second <value>
+  // second <value> first <int>
+  val otherOptions by options<() -> Unit> {
+    // first <int>
+    int().convert {
+      fun() = println(it)
+    }.option("first")
+    // second <value>
+    double()
+        .convert {
+          fun() = println(it)
+        }
+        .named("value")
+        .option("second")
+        .repeatable()
+    // third <v1> <v2>
+    argument {
+      val v1 by double().named("v1")
+      val v2 by double().named("v2")
+      convert {
+        fun() = println("$v1 + $v2 = ${v1 + v2}")
+      }
+    }.option("third")
+  }
+
+  "test" execute {
+    otherOptions.forEach { it() }
   }
 
   val merged by argument {
@@ -104,6 +134,7 @@ val testCommand = command<Any> {
   }
 
   // Define sub commands in this builder
+  // /command sub-command
   "sub-command" {
     // sub-command <values>
     val another by int(1..100).multiple().named("values")
@@ -117,6 +148,23 @@ val testCommand = command<Any> {
 
   }
 
+  // An empty command name is supported, this is considered
+  // the "else" branch if no literal is specified.
+  // The else command executor will have priority over the root
+  // one if one is provided and the else branch doesn't use
+  // any extra arguments.
+
+  // /command .. <extra>
+  // /command .. else <extra>
+  subcommand("", "else") {
+    val extra by word().named("extra")
+
+    execute {
+
+    }
+  }
+
+  // /command ..
   execute {
     println("/<$value> <$bool>")
   }
