@@ -19,7 +19,9 @@ subprojects {
   kotlin {
     jvm()
     js()
-    mingwX64()
+    // TODO: Figure out why native fails now and report a bug,
+    //  did the classes inheritance structure become too complex?
+    // mingwX64()
 
     sourceSets {
       val commonMain by getting {

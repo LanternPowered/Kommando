@@ -23,11 +23,35 @@ fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S>
 @CommandDsl
 interface NamedArgument<T, S>
 
+@CommandDsl
+interface BuiltArgument<T, S>
+
 /**
  * Represents a flag.
  */
 @CommandDsl
 interface Flag<T, S>
+
+/**
+ * Represents an option.
+ */
+@CommandDsl
+interface Option<T, S> {
+
+  /**
+   * Converts this option to a repeatable option.
+   */
+  fun repeatable(): Repeatable<T, S>
+
+  /**
+   * Represents a repeatable option.
+   */
+  @CommandDsl
+  interface Repeatable<T, S>
+
+  @CommandDsl
+  interface Defaulted<T, S>
+}
 
 @CommandDsl
 interface Source<S> {
@@ -44,7 +68,10 @@ interface Source<S> {
 }
 
 @CommandDsl
-interface BaseCommandBuilder<S> {
+interface CommandBuilder<S> : BaseCommandBuilder<S>, ExecutableCommandBuilder
+
+@CommandDsl
+interface BaseCommandBuilder<S> : ArgumentAwareBuilder<S>, OptionAwareBuilder<S>, FlagAwareBuilder<S> {
 
   /**
    * Gets the property that represents the
@@ -55,58 +82,8 @@ interface BaseCommandBuilder<S> {
   /**
    * Gets a delegate to access the source.
    */
-  operator fun <S> Source<S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S>
-
-  /**
-   * Registers a new flag to the command builder. The name of the property will
-   * be used as base name for the flag.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> Flag<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Registers a new argument to the command builder. The name of the property will
-   * be used as base name for the argument.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> Argument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Registers a new named argument to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Creates a new flag.
-   */
-  fun flag(name: String, vararg more: String): Flag<Boolean, S>
-
-  /**
-   * Converts the argument into an flag.
-   */
-  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T?, S>
-
-  /**
-   * Makes the flag return a default value if the flag isn't specified.
-   */
-  fun <T, S> Flag<T?, S>.default(defaultValue: T): Flag<T, S>
-
-  /**
-   * Makes the flag return a default value if the flag isn't specified.
-   */
-  fun <T, S> Flag<T?, S>.defaultBy(defaultValue: () -> T): Flag<T, S>
-
-  /**
-   * Names the argument with the specified name.
-   */
-  infix fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S>
+  operator fun <S> Source<S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S>
 
   /**
    * Builds and registers a sub-command.
@@ -118,7 +95,7 @@ interface BaseCommandBuilder<S> {
   /**
    * Builds and registers a sub-command.
    */
-  infix fun String.execute(fn: NullContext.() -> Unit) {
+  infix fun String.execute(fn: ExecutionContext.() -> Unit) {
     subcommand(this) {
       execute(fn)
     }
@@ -267,8 +244,177 @@ interface ExecutableCommandBuilder {
   /**
    * Sets the executor for the current command, doesn't affect sub-commands.
    */
-  infix fun execute(fn: NullContext.() -> Unit)
+  infix fun execute(fn: ExecutionContext.() -> Unit)
 }
 
 @CommandDsl
-interface CommandBuilder<S> : BaseCommandBuilder<S>, ExecutableCommandBuilder
+interface FlagAwareBuilder<S> {
+
+  /**
+   * Registers a new flag to the command builder. The name of the property will
+   * be used as base name for the flag.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Flag<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Creates a new flag.
+   */
+  fun flag(name: String, vararg more: String): Flag<Boolean, S>
+
+  /**
+   * Converts the argument into an flag.
+   *
+   * @param name The primary name of the flag
+   * @param more The secondary names of the flag
+   */
+  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T?, S>
+
+  /**
+   * Makes the flag return a default value if the flag isn't specified.
+   */
+  fun <T, S> Flag<T?, S>.default(defaultValue: T): Flag<T, S>
+
+  /**
+   * Makes the flag return a default value if the flag isn't specified.
+   */
+  fun <T, S> Flag<T?, S>.defaultBy(defaultValue: () -> T): Flag<T, S>
+}
+
+@CommandDsl
+interface OptionAwareBuilder<S> {
+
+  /**
+   * Registers a new option to the command builder.
+   *
+   * Accessing the option value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Option<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?>
+
+  /**
+   * Registers a new option to the command builder.
+   *
+   * Accessing the option value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Option.Defaulted<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Registers a new repeatable option to the command builder. The name of the property will
+   * be used as base name for the option.
+   *
+   * Accessing the option value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Option.Repeatable<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>>
+
+  /**
+   * Makes the option return a default value if the option isn't specified.
+   */
+  fun <T, S> Option<T, S>.default(defaultValue: T): Option.Defaulted<T, S>
+
+  /**
+   * Makes the option return a default value if the option isn't specified.
+   */
+  fun <T, S> Option<T, S>.defaultBy(defaultValue: () -> T): Option.Defaulted<T, S>
+
+  /**
+   * Creates a new option.
+   *
+   * @param name The primary name of the option
+   * @param more The secondary names of the option
+   * @param builder The builder function of the backing arguments
+   */
+  fun <T> option(name: String, vararg more: String,
+      @BuilderInference builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction
+  ): Option<T, S>
+
+  /**
+   * Creates an option from the argument.
+   *
+   * @param name The primary name of the option
+   * @param more The secondary names of the option
+   */
+  fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T, S>
+
+  /**
+   * Creates an option from the argument.
+   *
+   * @param name The primary name of the option
+   * @param more The secondary names of the option
+   */
+  fun <T, S> NamedArgument<T, S>.option(name: String, vararg more: String): Option<T, S>
+}
+
+@CommandDsl
+interface ArgumentAwareBaseBuilder<S> {
+
+  /**
+   * Registers a new argument to the command builder. The name of the property will
+   * be used as base name for the argument.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Argument<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Registers a new named argument to the command builder.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> NamedArgument<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Registers a new named argument to the command builder.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> BuiltArgument<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Names the argument with the specified name.
+   */
+  fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S>
+}
+
+@CommandDsl
+interface ArgumentAwareBuilder<S> : ArgumentAwareBaseBuilder<S> {
+
+  /**
+   * Creates a new argument.
+   */
+  fun <T> argument(
+      @BuilderInference builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction
+  ): BuiltArgument<T, S>
+}
+
+/**
+ * The builder for arguments based on other arguments.
+ */
+@CommandDsl
+interface ArgumentBuilder<T, S> : ArgumentAwareBaseBuilder<S> {
+
+  /**
+   * Specifies the conversion function where multiple
+   * argument values can be converted into a new result.
+   */
+  fun convert(fn: () -> T): ConvertFunction
+
+  /**
+   * Represents the convert function.
+   */
+  interface ConvertFunction
+}

@@ -7,11 +7,8 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando
+package org.lanternpowered.kommando.impl
 
-/**
- * A dummy context that contains nothing,
- * used for designing the DSL.
- */
-@CommandDsl
-object NullContext
+import org.lanternpowered.kommando.ExecutionContext
+
+object ExecutionContextImpl : ExecutionContext

@@ -9,14 +9,17 @@
  */
 package org.lanternpowered.kommando.impl
 
+import org.lanternpowered.kommando.ArgumentBuilder
 import org.lanternpowered.kommando.BaseCommandBuilder
+import org.lanternpowered.kommando.BuiltArgument
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
 import org.lanternpowered.kommando.CommandContext
 import org.lanternpowered.kommando.ExecutableCommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
-import org.lanternpowered.kommando.NullContext
+import org.lanternpowered.kommando.ExecutionContext
+import org.lanternpowered.kommando.Option
 import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.tree.CommandTree
@@ -40,7 +43,7 @@ internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuild
     return super.areArgumentRegistrationsAllowed()
   }
 
-  override fun execute(fn: NullContext.() -> Unit) {
+  override fun execute(fn: ExecutionContext.() -> Unit) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }
@@ -178,7 +181,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
 
   override fun subcommand(name: String, aliases: List<String>): ExecutableCommandBuilder {
     return object : ExecutableCommandBuilder {
-      override fun execute(fn: NullContext.() -> Unit) {
+      override fun execute(fn: ExecutionContext.() -> Unit) {
         this@BaseCommandBuilderImpl.subcommand(name, aliases) {
           execute(fn)
         }
@@ -197,12 +200,52 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     builder.fn()
     // TODO
   }
+
+  override fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Option.Defaulted<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Option.Repeatable<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option<T, S>.default(defaultValue: T): Option.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option<T, S>.defaultBy(defaultValue: () -> T): Option.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> option(name: String, vararg more: String, builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction): Option<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> NamedArgument<T, S>.option(name: String, vararg more: String): Option<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> BuiltArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> argument(builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction): BuiltArgument<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 }
 
 internal abstract class AbstractTeeElement<S>(
     override val children: List<TreeElement<S>>,
     override val flags: List<TreeFlag<S>>,
-    val executor: (NullContext.() -> Unit)?
+    val executor: (ExecutionContext.() -> Unit)?
 ) : TreeElement<S> {
 
   override val executable: Boolean
@@ -218,13 +261,13 @@ internal class TreeArgumentElement<T, S>(
     flags: List<TreeFlag<S>>,
     override val argument: Argument<T, S>,
     val argumentProperty: ArgumentProperty<T>,
-    executor: (NullContext.() -> Unit)?
+    executor: (ExecutionContext.() -> Unit)?
 ) : AbstractTeeElement<S>(children, flags, executor), TreeElement.Argument<S>
 
 internal class TreeRootElement<S>(
     children: List<TreeElement<S>>,
     flags: List<TreeFlag<S>>,
-    executor: (NullContext.() -> Unit)?
+    executor: (ExecutionContext.() -> Unit)?
 ) : AbstractTeeElement<S>(children, flags, executor), TreeElement.Root<S>
 
 internal class CommandTreeImpl<S>(override val rootElement: TreeElement.Root<S>) : CommandTree<S> {
