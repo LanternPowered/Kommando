@@ -30,7 +30,22 @@ interface BuiltArgument<T, S>
  * Represents a flag.
  */
 @CommandDsl
-interface Flag<T, S>
+interface Flag<T, S> {
+
+  /**
+   * Converts this flag to a repeatable flag.
+   */
+  fun repeatable(): Repeatable<T, S>
+
+  /**
+   * Represents a repeatable flag.
+   */
+  @CommandDsl
+  interface Repeatable<T, S>
+
+  @CommandDsl
+  interface Defaulted<T, S>
+}
 
 /**
  * Represents an option.
@@ -251,19 +266,36 @@ interface ExecutableCommandBuilder {
 interface FlagAwareBuilder<S> {
 
   /**
-   * Registers a new flag to the command builder. The name of the property will
-   * be used as base name for the flag.
+   * Registers a new flag to the command builder.
    *
    * Accessing the argument value outside the execution of the command will result
    * in an [IllegalStateException].
    */
   operator fun <T> Flag<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?>
+
+  /**
+   * Registers a new flag to the command builder.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Flag.Defaulted<T, in S>.provideDelegate(
       thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
+
+  /**
+   * Registers a new flag to the command builder.
+   *
+   * Accessing the argument value outside the execution of the command will result
+   * in an [IllegalStateException].
+   */
+  operator fun <T> Flag.Repeatable<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>>
 
   /**
    * Creates a new flag.
    */
-  fun flag(name: String, vararg more: String): Flag<Boolean, S>
+  fun flag(name: String, vararg more: String): Flag.Defaulted<Boolean, S>
 
   /**
    * Converts the argument into an flag.
@@ -271,17 +303,17 @@ interface FlagAwareBuilder<S> {
    * @param name The primary name of the flag
    * @param more The secondary names of the flag
    */
-  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T?, S>
+  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T, S>
 
   /**
    * Makes the flag return a default value if the flag isn't specified.
    */
-  fun <T, S> Flag<T?, S>.default(defaultValue: T): Flag<T, S>
+  fun <T, S> Flag<T, S>.default(defaultValue: T): Flag.Defaulted<T, S>
 
   /**
    * Makes the flag return a default value if the flag isn't specified.
    */
-  fun <T, S> Flag<T?, S>.defaultBy(defaultValue: () -> T): Flag<T, S>
+  fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S>
 }
 
 @CommandDsl

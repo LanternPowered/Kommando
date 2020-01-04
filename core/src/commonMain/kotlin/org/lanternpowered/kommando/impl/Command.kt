@@ -145,6 +145,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     return FlagNamesImpl(longNames, shortNames)
   }
 
+  /*
   override fun flag(name: String, vararg more: String): Flag<Boolean, S> {
     return FlagImpl.TrueIfPresent(parseFlagNames(name, more.asList()))
   }
@@ -166,6 +167,7 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     @Suppress("UNCHECKED_CAST")
     return FlagImpl.Argument(this.argument as Argument<T, S>, defaultValue, this.names)
   }
+  */
 
   override fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S> = NamedArgumentImpl(name, this)
 
@@ -238,6 +240,30 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   }
 
   override fun <T> argument(builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction): BuiltArgument<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Flag.Defaulted<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Flag.Repeatable<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun flag(name: String, vararg more: String): Flag.Defaulted<Boolean, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Flag<T, S>.default(defaultValue: T): Flag.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

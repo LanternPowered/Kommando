@@ -90,7 +90,6 @@ val testCommand = command<Any> {
   val flagValue by flag("--my-flag", "-f")
 
   // --my-other-flag 100
-  // --my-other-flag=100
   val otherFlagValue by int().flag("--my-other-flag", "-o")
 
   // Add children based on other commands

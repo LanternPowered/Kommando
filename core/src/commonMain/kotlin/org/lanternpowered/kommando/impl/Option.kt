@@ -26,6 +26,10 @@ internal abstract class FlagImpl<T, S>(val names: FlagNamesImpl) : ParserArgumen
     override fun suggest(context: ArgumentParseContext<S>) = this.argument.suggest(context)
     @Suppress("UNCHECKED_CAST")
     override fun getDefaultValue(): T = this.defaultValue?.invoke() ?: null as T
+
+    override fun repeatable(): Flag.Repeatable<T, S> {
+      TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
   }
 
   class TrueIfPresent<S>(names: FlagNamesImpl) : FlagImpl<Boolean, S>(names), Flag<Boolean, S> {
@@ -33,6 +37,10 @@ internal abstract class FlagImpl<T, S>(val names: FlagNamesImpl) : ParserArgumen
     override fun parse(context: ArgumentParseContext<S>) = ParseResult(true)
     override fun suggest(context: ArgumentParseContext<S>) = listOf<String>()
     override fun getDefaultValue() = false
+
+    override fun repeatable(): Flag.Repeatable<Boolean, S> {
+      TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
   }
 }
 
