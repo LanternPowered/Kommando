@@ -28,7 +28,7 @@ data class IntArgument internal constructor(
 ) : Argument<Int, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    val value = parseInt()
+    val value = readInt()
     check(value >= min) {
       "Int must not be less than $min, but found $value" }
     check(value <= max) {

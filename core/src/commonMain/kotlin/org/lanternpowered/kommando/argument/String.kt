@@ -28,7 +28,7 @@ fun string() = QuotableStringArgument()
 class QuotableStringArgument internal constructor() : Argument<String, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    result(parseString())
+    result(readString())
   }
 }
 
@@ -47,7 +47,10 @@ fun rawRemainingString() = RawRemainingStringArgument()
 class RawRemainingStringArgument internal constructor() : Argument<String, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    result(parseRemainingString())
+    val start = context.cursor
+    val end = context.input.length
+    context.cursor = end
+    result(context.input.substring(start, end))
   }
 }
 
@@ -62,6 +65,6 @@ fun word() = SingleWordArgument()
 class SingleWordArgument internal constructor() : Argument<String, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    result(parseUnquotedString())
+    result(readUnquotedString())
   }
 }

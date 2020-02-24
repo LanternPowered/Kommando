@@ -7,17 +7,12 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando
+package org.lanternpowered.kommando.impl
 
-interface CommandContext<out S> {
+import org.lanternpowered.kommando.NamedArgument
+import org.lanternpowered.kommando.argument.Argument
 
-  /**
-   * The source that caused the command to execute.
-   */
-  val source: S
-
-  /**
-   * The raw input of the command.
-   */
-  val input: String
-}
+class NamedArgumentImpl<T, S>(
+    val name: String,
+    val argument: Argument<T, S>
+) : NamedArgument<T, S>

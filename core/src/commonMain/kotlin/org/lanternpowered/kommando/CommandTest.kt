@@ -51,57 +51,45 @@ val testCommand = command<Any> {
       .optional()
       .default("unknown")
 
-  // test <arg>
-  // test_1 <arg>
-  // test_1 <arg> test_2 <arg>
-  // test_2 <arg> test_1 <arg> test <arg>
-  // test_2 <arg> test_1 <arg> test_3 <arg>
-  // test_2 <arg> test_1 <arg> test_2 <arg> test_2 <arg>
-  /*
-  val options = object : options() {
-    val test by boolean()
-    val test1 by int() named "test_1"
-    val test2 by double().repeatable() named "test_2"
-    val test3 by double().multiple() named "test_3"
-  }
-  */
-
   // Group the options in an object for better overview
   val options = object {
-    val test by boolean().option("test") // test true|false
-    val test1 by int().option("test_1") // test_1 <int>
-    val test2 by argument { // test_2 <double> <double>
+    val test by "test".option() with boolean() // test true|false
+    val test1 by "test_1".option() with int() // test_1 <int>
+    val test2 by ("test_2" or "alias").option() with argument { // test_2 <double> <double>
       val a by double()
       val b by double()
       convert {
         a + b
       }
-    }.option("test_2", "alias")
+    }
+    // No argument, so true if present, false otherwise
+    val test3 by "test_3".option() // test_3
+    // Repeatable, no argument, int value with the amount of times
+    val test4 by "test_4".option().repeatable() // test_4
   }
 
   // first <int> second <value>
   // second <value> first <int>
   val otherOptions by options<() -> Unit> {
     // first <int>
-    int().convert {
-      fun() = println(it)
-    }.option("first")
+    "first" with int()
+        .convert {
+          fun() = println(it)
+        }
     // second <value>
-    double()
+    "second".repeatable() with double()
         .convert {
           fun() = println(it)
         }
         .named("value")
-        .option("second")
-        .repeatable()
     // third <v1> <v2>
-    argument {
+    "third" {
       val v1 by double().named("v1")
       val v2 by double().named("v2")
       convert {
         fun() = println("$v1 + $v2 = ${v1 + v2}")
       }
-    }.option("third")
+    }
   }
 
   "test" execute {
@@ -123,13 +111,96 @@ val testCommand = command<Any> {
   val otherFlagValue by int().flag("--my-other-flag", "-o")
 
   // Add children based on other commands
-  subcommand("name", "alias", "more", otherCommand)
+  "name" or "alias" or "more" then otherCommand
 
-  subcommand("with", "alias") {
+  "with" or "alias" {
     // Do things
 
     execute {
 
+    }
+  }
+
+  // a b|c <int>
+  // a <int>
+  "a" then ("b" or "c" or otherwise) {
+    val v by int()
+
+    execute {
+
+    }
+  }
+
+  // a
+  "a" {
+    val v by int()
+
+    // a <int> b <double>
+    "b" {
+      val d by double()
+    }
+
+    // a <int> <word>
+    otherwise {
+      val s by word()
+    }
+  }
+
+  // a|b|c <int> d|e
+  "a" or "b" or "c" {
+    val v by int()
+
+    "d" or "e" execute {
+
+    }
+  }
+
+  // a|b|c
+  "a" or "b" or "c" {
+    val v by int()
+
+    group.beforeArguments {
+      val s by word()
+
+      // a|b|c f <word>
+      "f" execute {
+      }
+
+      // a|b|c q <word>
+      "q" execute {
+      }
+    }
+
+    // a|b|c d|e <int>
+    ("d" or "e").beforeArguments execute {
+
+    }
+
+    // a|b|c <int> d|e
+    "d" or "e" execute {
+
+    }
+
+    // a|b|c <int> <word>
+    otherwise {
+      val s by word()
+    }
+  }
+
+  val arg by argument {
+    // plus|minus <v1> <v2>
+    group.beforeArguments {
+      val v1 by int().named("v1")
+      val v2 by int().named("v2")
+
+      "plus" convert { v1 + v2 }
+      "minus" convert { v1 - v2 }
+    }
+
+    // negate <v>
+    "negate" {
+      val v by int().named("v")
+      convert { -v }
     }
   }
 
@@ -144,24 +215,8 @@ val testCommand = command<Any> {
     }
   }
 
-  subcommand("test", "alias") execute {
+  "test" or "alias" execute {
 
-  }
-
-  // An empty command name is supported, this is considered
-  // the "else" branch if no literal is specified.
-  // The else command executor will have priority over the root
-  // one if one is provided and the else branch doesn't use
-  // any extra arguments.
-
-  // /command .. <extra>
-  // /command .. else <extra>
-  subcommand("", "else") {
-    val extra by word().named("extra")
-
-    execute {
-
-    }
   }
 
   // /command ..
@@ -182,14 +237,12 @@ val mcExecuteCommand = command<Any> {
   }
 
   // align <axis>
-  val align by string()
+  val align by "align".option() with string()
       .named("axis")
-      .option("align")
 
   // anchored <anchor>
-  val anchored by anchor
+  val anchored by "anchored".option() with anchor
       .named("anchor")
-      .option("anchored")
 
   // /execute align <axis> anchored <anchor>
   // /execute align <axis>
@@ -236,7 +289,7 @@ val mcAdvancementCommand = command<Any> {
     println("/advancement $action <target: $target> everything")
   }
 
-  groupBefore {
+  group.beforeArguments {
     val advancement by string()
 
     "only" {

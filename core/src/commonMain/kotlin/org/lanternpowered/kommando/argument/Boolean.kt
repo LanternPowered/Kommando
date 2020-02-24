@@ -22,8 +22,10 @@ class BooleanArgument internal constructor() : Argument<Boolean, Any> {
   private val suggestions = listOf("true", "false")
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    result(parseBoolean())
+    result(readBoolean())
   }
 
-  override fun suggest(context: ArgumentParseContext<Any>) = this.suggestions
+  override fun suggest(context: ArgumentParseContext<Any>) = context.run {
+    suggestions.map { suggestion(it) }
+  }
 }

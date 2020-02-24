@@ -12,6 +12,11 @@ package org.lanternpowered.kommando
 interface Command<S> {
 
   /**
+   * Gets completion suggestions for the given [CommandContext].
+   */
+  fun getCompletionSuggestions(context: CommandContext<S>): List<String>
+
+  /**
    * Executes the command for the given [CommandContext].
    */
   fun execute(context: CommandContext<S>)

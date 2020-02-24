@@ -11,17 +11,19 @@ package org.lanternpowered.kommando.impl
 
 import org.lanternpowered.kommando.ArgumentBuilder
 import org.lanternpowered.kommando.BaseCommandBuilder
+import org.lanternpowered.kommando.BoundOption
 import org.lanternpowered.kommando.BuiltArgument
 import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
 import org.lanternpowered.kommando.CommandContext
-import org.lanternpowered.kommando.ExecutableCommandBuilder
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.ExecutionContext
+import org.lanternpowered.kommando.Group
 import org.lanternpowered.kommando.MappedOptions
 import org.lanternpowered.kommando.MappedOptionsBuilder
 import org.lanternpowered.kommando.Option
+import org.lanternpowered.kommando.Path
 import org.lanternpowered.kommando.Source
 import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.tree.CommandTree
@@ -39,6 +41,17 @@ internal fun checkName(name: String) {
       "supported [A-Z a-z 0-9 - _], the first character can only be one of [A-Z a-z 0-9]")
 }
 
+internal class CommandImpl<S> : Command<S> {
+
+  override fun execute(context: CommandContext<S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun getCompletionSuggestions(context: CommandContext<S>): List<String> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+}
+
 internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuilder<S> {
 
   override fun areArgumentRegistrationsAllowed(): Boolean {
@@ -50,12 +63,8 @@ internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuild
   }
 }
 
-private class NamedArgumentImpl<T, S>(
-    val name: String,
-    val argument: Argument<T, S>
-) : NamedArgument<T, S>
-
-internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
+internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
+    BaseCommandBuilder<S> {
 
   internal class BoundCommand<S>(
       val builder: CommandBuilderImpl<S>,
@@ -67,11 +76,11 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
   private val commands = mutableListOf<BoundCommand<S>>()
   private val options = mutableListOf<FlagProperty<*>>()
 
+  override fun <A, B> A.to(b: B) = throw UnsupportedOperationException()
+
   fun build(): Command<S> {
     TODO()
   }
-
-  override fun source(): Source<S> = SourceImpl()
 
   /**
    * Gets whether new argument/option/flag registrations are still allowed.
@@ -147,6 +156,133 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     return FlagNamesImpl(longNames, shortNames)
   }
 
+  override fun <T> argument(builder: ArgumentBuilder<T, S>.() -> Unit): BuiltArgument<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun Path.beforeArguments(fn: CommandBuilder<S>.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun String.beforeArguments(fn: CommandBuilder<S>.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Flag<T, S>.default(defaultValue: T): Flag.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun flag(name: String, vararg more: String): Flag.Defaulted<Boolean, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun Group.invoke(fn: BaseCommandBuilder<S>.() -> Unit) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun Path.invoke(fn: CommandBuilder<S>.() -> Unit): BaseCommandBuilder.CommandBuilderWithPath {
+    val builder = CommandBuilderImpl<S>()
+    builder.fn()
+    val builderWithPath = CommandBuilderWithPath<S>(this, /*builder*/TODO())
+    children += builderWithPath
+    return builderWithPath
+  }
+
+  override fun String.invoke(fn: CommandBuilder<S>.() -> Unit) = this.path.invoke(fn)
+
+  override fun <T, S> Argument<T, S>.named(name: String) = NamedArgumentImpl(name, this)
+
+  override fun Path.or(other: BaseCommandBuilder.CommandBuilderWithPath): BaseCommandBuilder.CommandBuilderWithPath {
+    other as CommandBuilderWithPath<*>
+    other.path = this.or(other.path)
+    return other
+  }
+
+  override fun String.or(other: BaseCommandBuilder.CommandBuilderWithPath) = this.path.or(other)
+
+  override fun Path.then(other: BaseCommandBuilder.CommandBuilderWithPath): BaseCommandBuilder.CommandBuilderWithPath {
+    other as CommandBuilderWithPath<*>
+    other.path = this.then(other.path)
+    return other
+  }
+
+  override fun String.then(other: BaseCommandBuilder.CommandBuilderWithPath) = this.path.then(other)
+
+  override fun Path.then(other: Command<in S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun String.then(other: Command<in S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> BoundOption.Repeatable<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> BoundOption<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> BuiltArgument<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Flag.Defaulted<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> Flag.Repeatable<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T> MappedOptions<T, in S>.provideDelegate(
+      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option.with(argument: Argument<T, S>)
+      = BoundOptionImpl((this as OptionImpl).path, argument)
+
+  override fun <T, S> Option.Repeatable.with(argument: Argument<T, S>)
+      = RepeatableBoundOptionImpl((this as RepeatableOptionImpl).path, argument)
+
+  override fun <T, S> Option.Repeatable.with(argument: BuiltArgument<T, S>): BoundOption.Repeatable<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option.Repeatable.with(argument: NamedArgument<T, S>): BoundOption.Repeatable<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun String.option() = OptionImpl(this.path)
+  override fun Path.option() = OptionImpl(this)
+
+  override fun <T> options(builder: MappedOptionsBuilder<T, S>.() -> Unit): MappedOptions<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option.with(argument: BuiltArgument<T, S>): BoundOption<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun <T, S> Option.with(argument: NamedArgument<T, S>): BoundOption<T, S> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
   /*
   override fun flag(name: String, vararg more: String): Flag<Boolean, S> {
     return FlagImpl.TrueIfPresent(parseFlagNames(name, more.asList()))
@@ -169,7 +305,6 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     @Suppress("UNCHECKED_CAST")
     return FlagImpl.Argument(this.argument as Argument<T, S>, defaultValue, this.names)
   }
-  */
 
   override fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S> = NamedArgumentImpl(name, this)
 
@@ -203,79 +338,12 @@ internal open class BaseCommandBuilderImpl<S> : BaseCommandBuilder<S> {
     val builder = BaseCommandBuilderImpl<S>()
     builder.fn()
     // TODO
-  }
+  }*/
 
-  override fun <T> Option<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> Option.Defaulted<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> Option.Repeatable<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Option<T, S>.default(defaultValue: T): Option.Defaulted<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Option<T, S>.defaultBy(defaultValue: () -> T): Option.Defaulted<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Argument<T, S>.option(name: String, vararg more: String): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> NamedArgument<T, S>.option(name: String, vararg more: String): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> BuiltArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> argument(builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction): BuiltArgument<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> Flag.Defaulted<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> Flag.Repeatable<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun flag(name: String, vararg more: String): Flag.Defaulted<Boolean, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Flag<T, S>.default(defaultValue: T): Flag.Defaulted<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> options(builder: MappedOptionsBuilder<T, S>.() -> Unit): MappedOptions<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T> MappedOptions<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> BuiltArgument<T, S>.option(name: String, vararg more: String): Option<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  private class CommandBuilderWithPath<S>(
+      override var path: Path,
+      override val element: FoldedTreeElement<S>
+  ) : BaseCommandBuilder.CommandBuilderWithPath, ObjectWithPath<S>
 }
 
 internal abstract class AbstractTeeElement<S>(
@@ -309,6 +377,10 @@ internal class TreeRootElement<S>(
 internal class CommandTreeImpl<S>(override val rootElement: TreeElement.Root<S>) : CommandTree<S> {
 
   override fun execute(context: CommandContext<S>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun getCompletionSuggestions(context: CommandContext<S>): List<String> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

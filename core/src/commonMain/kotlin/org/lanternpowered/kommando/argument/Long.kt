@@ -28,7 +28,7 @@ data class LongArgument internal constructor(
 ) : Argument<Long, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    val value = parseLong()
+    val value = readLong()
     check(value >= min) {
       "Long must not be less than $min, but found $value" }
     check(value <= max) {

@@ -28,7 +28,7 @@ data class DoubleArgument internal constructor(
 ) : Argument<Double, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    val value = parseDouble()
+    val value = readDouble()
     check(value >= min) {
       "Double must not be less than $min, but found $value" }
     check(value <= max) {

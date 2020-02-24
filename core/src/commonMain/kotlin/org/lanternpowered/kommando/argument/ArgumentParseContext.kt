@@ -12,8 +12,9 @@ package org.lanternpowered.kommando.argument
 import org.lanternpowered.kommando.CommandContext
 import org.lanternpowered.kommando.Message
 import org.lanternpowered.kommando.ValidationContext
+import org.lanternpowered.kommando.suggestion.Suggestion
 
-interface ArgumentParseContext<S> : CommandContext<S>, ValidationContext {
+interface ArgumentParseContext<out S> : CommandContext<S>, ArgumentReader, ValidationContext {
 
   fun <T> result(value: T, potentialError: Message? = null) = ParseResult(value, potentialError)
 
@@ -33,40 +34,9 @@ interface ArgumentParseContext<S> : CommandContext<S>, ValidationContext {
    */
   fun <T> Argument<T, in S>.tryParseAndReset(): Boolean
 
-  fun <T> Argument<T, in S>.suggest(): List<String>
+  fun <T> Argument<T, in S>.suggest(): List<Suggestion>
 
-  /**
-   * The cursor position of the reader.
-   */
-  var cursor: Int
+  fun suggestion(range: IntRange, value: String, tooltip: Message? = null): Suggestion
 
-  /**
-   * Moves the cursor to the next
-   * non-whitespace character.
-   */
-  fun skipWhitespaces()
-
-  /**
-   * Parses the next argument as a [String].
-   */
-  fun parseString(): String
-
-  /**
-   * Parses the next argument as a unquoted [String].
-   */
-  fun parseUnquotedString(): String
-
-  fun parseRemainingString(): String
-
-  fun parseChar(): Char
-
-  fun parseInt(): Int
-
-  fun parseDouble(): Double
-
-  fun parseFloat(): Float
-
-  fun parseBoolean(): Boolean
-
-  fun parseLong(): Long
+  fun suggestion(value: String, tooltip: Message? = null): Suggestion
 }

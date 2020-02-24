@@ -10,7 +10,8 @@
 package org.lanternpowered.kommando.impl.util.collection
 
 /**
- * Matches whether the contents of the iterables are equal.
+ * Matches whether the contents of the iterables are equal. The
+ * position within the iterables must also match.
  */
 internal infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
   val thisList = this as? List<E> ?: this.toList()
@@ -19,7 +20,8 @@ internal infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
 }
 
 /**
- * Matches whether the contents of the lists are equal.
+ * Matches whether the contents of the lists are equal. The
+ * position within the lists must also match.
  */
 internal infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
   if (this.size != that.size) return false

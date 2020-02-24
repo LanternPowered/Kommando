@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.suggestion.Suggestion
 import org.lanternpowered.kommando.util.ToStringHelper
 import kotlin.reflect.KProperty
 
@@ -76,13 +77,13 @@ abstract class ChoicesArgument<V> internal constructor() : Argument<V, Any> {
     get() = joinKeys(this.choices)
 
   final override fun parse(context: ArgumentParseContext<Any>): ParseResult<V> = context.run {
-    val key = parseString()
+    val key = readString()
     val map = choices
     val value = map[key] ?: error("Choice must be one of [$joinedKeys], but found $key")
     result(value)
   }
 
-  final override fun suggest(context: ArgumentParseContext<Any>): List<String> = listOf() // TODO
+  final override fun suggest(context: ArgumentParseContext<Any>): List<Suggestion> = listOf() // TODO
 }
 
 /**

@@ -26,215 +26,8 @@ interface NamedArgument<T, S>
 @CommandDsl
 interface BuiltArgument<T, S>
 
-/**
- * Represents a flag.
- */
 @CommandDsl
-interface Flag<T, S> {
-
-  /**
-   * Converts this flag to a repeatable flag.
-   */
-  fun repeatable(): Repeatable<T, S>
-
-  /**
-   * Represents a repeatable flag.
-   */
-  @CommandDsl
-  interface Repeatable<T, S>
-
-  @CommandDsl
-  interface Defaulted<T, S>
-}
-
-@CommandDsl
-interface Source<S> {
-
-  /**
-   * Validates the source.
-   */
-  fun validate(fn: ValidationContext.(source: S) -> Unit): Source<S>
-
-  /**
-   * Converts the source.
-   */
-  fun <R> convert(fn: ValidationContext.(source: S) -> R): Source<R>
-}
-
-@CommandDsl
-interface CommandBuilder<S> : BaseCommandBuilder<S>, ExecutableCommandBuilder
-
-@CommandDsl
-interface BaseCommandBuilder<S> : ArgumentAwareBuilder<S>, ArgumentBuilderAwareBuilder<S>,
-    OptionAwareBuilder<S>, FlagAwareBuilder<S> {
-
-  /**
-   * Gets the property that represents the
-   * source of the command execution.
-   */
-  fun source(): Source<S>
-
-  /**
-   * Gets a delegate to access the source.
-   */
-  operator fun <S> Source<S>.provideDelegate(
-      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, S>
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  operator fun String.invoke(fn: CommandBuilder<S>.() -> Unit) {
-    subcommand(this, fn)
-  }
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  infix fun String.execute(fn: ExecutionContext.() -> Unit) {
-    subcommand(this) {
-      execute(fn)
-    }
-  }
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String, aliases: List<String>): ExecutableCommandBuilder
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String): ExecutableCommandBuilder
-      = subcommand(name, listOf())
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String, vararg aliases: String): ExecutableCommandBuilder
-      = subcommand(name, aliases.toList())
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String, fn: CommandBuilder<S>.() -> Unit) {
-    subcommand(name, listOf(), fn)
-  }
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String, aliases: List<String>, fn: CommandBuilder<S>.() -> Unit)
-
-  /**
-   * Builds and registers a sub-command.
-   */
-  fun subcommand(name: String, vararg aliases: String, fn: CommandBuilder<S>.() -> Unit) {
-    subcommand(name, aliases.toList(), fn)
-  }
-  
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name of the sub-command
-   * @param aliases The aliases of the sub-command
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, aliases: List<String>, command: Command<in S>)
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name of the child command
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, command: Command<in S>) {
-    subcommand(name, listOf(), command)
-  }
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name
-   * @param alias The alias
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, alias: String, command: Command<in S>) {
-    subcommand(name, listOf(alias), command)
-  }
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name
-   * @param alias1 The first alias
-   * @param alias2 The second alias
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, alias1: String, alias2: String, command: Command<in S>) {
-    subcommand(name, listOf(alias1, alias2), command)
-  }
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name
-   * @param alias1 The first alias
-   * @param alias2 The second alias
-   * @param alias3 The third alias
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, command: Command<in S>) {
-    subcommand(name, listOf(alias1, alias2, alias3), command)
-  }
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name
-   * @param alias1 The first alias
-   * @param alias2 The second alias
-   * @param alias3 The third alias
-   * @param alias4 The fourth alias
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, alias4: String, command: Command<in S>) {
-    subcommand(name, listOf(alias1, alias2, alias3, alias4), command)
-  }
-
-  /**
-   * Adds a sub-command.
-   *
-   * @param name The name
-   * @param alias1 The first alias
-   * @param alias2 The second alias
-   * @param alias3 The third alias
-   * @param alias4 The fourth alias
-   * @param alias5 The fifth alias
-   * @param command The sub-command
-   */
-  fun subcommand(name: String, alias1: String, alias2: String, alias3: String, alias4: String, alias5: String, command: Command<in S>) {
-    subcommand(name, listOf(alias1, alias2, alias3, alias4, alias5), command)
-  }
-
-  /**
-   * This function is useful is certain sub-commands require some
-   * arguments after the name of the sub-command.
-   * For example: '/name a|b <my-argument>' where a and b
-   * are sub-commands.
-   */
-  fun groupBefore(fn: BaseCommandBuilder<S>.() -> Unit)
-
-  /**
-   * This function is useful is certain sub-commands require some
-   * arguments before the name of the sub-command.
-   * For example: '/name <my-argument> a|b' where a and b
-   * are sub-commands.
-   */
-  fun groupAfter(fn: BaseCommandBuilder<S>.() -> Unit)
-}
-
-@CommandDsl
-interface ExecutableCommandBuilder {
+interface CommandBuilder<S> : BaseCommandBuilder<S> {
 
   /**
    * Sets the executor for the current command, doesn't affect sub-commands.
@@ -243,61 +36,124 @@ interface ExecutableCommandBuilder {
 }
 
 @CommandDsl
-interface FlagAwareBuilder<S> {
+interface BaseBuilder {
 
   /**
-   * Registers a new flag to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
+   * @suppress
    */
-  operator fun <T> Flag<T, in S>.provideDelegate(
-      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T?>
-
-  /**
-   * Registers a new flag to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> Flag.Defaulted<T, in S>.provideDelegate(
-      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Registers a new flag to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
-  operator fun <T> Flag.Repeatable<T, in S>.provideDelegate(
-      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, List<T>>
-
-  /**
-   * Creates a new flag.
-   */
-  fun flag(name: String, vararg more: String): Flag.Defaulted<Boolean, S>
-
-  /**
-   * Converts the argument into an flag.
-   *
-   * @param name The primary name of the flag
-   * @param more The secondary names of the flag
-   */
-  fun <T, S> Argument<T, S>.flag(name: String, vararg more: String): Flag<T, S>
-
-  /**
-   * Makes the flag return a default value if the flag isn't specified.
-   */
-  fun <T, S> Flag<T, S>.default(defaultValue: T): Flag.Defaulted<T, S>
-
-  /**
-   * Makes the flag return a default value if the flag isn't specified.
-   */
-  fun <T, S> Flag<T, S>.defaultBy(defaultValue: () -> T): Flag.Defaulted<T, S>
+  @Deprecated(message = "Not allowed.", level = DeprecationLevel.ERROR)
+  infix fun <A, B> A.to(b: B)
 }
 
 @CommandDsl
-interface ArgumentAwareBuilder<S> {
+interface BaseCommandBuilder<S> : SourceAwareBuilder<S>, ArgumentAwareBuilder<S>,
+    ArgumentBuilderAwareBuilder<S>, OptionAwareBuilder<S>, FlagAwareBuilder<S>, PathAwareBuilder {
+
+  infix fun String.then(other: Command<in S>)
+
+  infix fun String.or(other: CommandBuilderWithPath): CommandBuilderWithPath
+
+  infix fun String.then(other: CommandBuilderWithPath): CommandBuilderWithPath
+
+  infix fun Path.then(other: Command<in S>)
+
+  infix fun Path.or(other: CommandBuilderWithPath): CommandBuilderWithPath
+
+  infix fun Path.then(other: CommandBuilderWithPath): CommandBuilderWithPath
+
+  fun Path.beforeArguments(fn: CommandBuilder<S>.() -> Unit)
+
+  fun String.beforeArguments(fn: CommandBuilder<S>.() -> Unit)
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  operator fun String.invoke(fn: CommandBuilder<S>.() -> Unit): CommandBuilderWithPath
+
+  operator fun Path.invoke(fn: CommandBuilder<S>.() -> Unit): CommandBuilderWithPath
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  infix fun String.execute(fn: ExecutionContext.() -> Unit) {
+    this {
+      execute(fn)
+    }
+  }
+
+  /**
+   * Builds and registers a sub-command.
+   */
+  infix fun Path.execute(fn: ExecutionContext.() -> Unit) {
+    this {
+      execute(fn)
+    }
+  }
+
+  /**
+   * Represents a command builder that is bound to a path.
+   */
+  interface CommandBuilderWithPath
+
+  /**
+   * Apply changes to the builder within a group.
+   */
+  operator fun Group.invoke(fn: BaseCommandBuilder<S>.() -> Unit)
+}
+
+interface Group
+
+interface Path
+
+interface PathAwareBuilder {
+
+  /**
+   * Represents a group. This object can be used
+   * to group certain actions. For example if two
+   * sub-commands use the same arguments:
+   * '/name <int> <int> a|b'
+   */
+  val group: Group
+
+  /**
+   * By default will arguments be parsed before
+   * literal values. The returned group object
+   * reverses this. For example:
+   * '/name a|b <int> <int>'
+   * (originally: '/name <int> <int> a|b')
+   */
+  val Group.beforeArguments: Group
+
+  /**
+   * Converts the [String] into a [Path]
+   */
+  val String.path: Path
+
+  infix fun String.or(other: String): Path
+
+  infix fun String.or(other: Path): Path
+
+  infix fun String.then(other: Path): Path
+
+  infix fun String.then(other: String): Path
+
+  infix fun Path.or(other: String): Path
+
+  infix fun Path.or(other: Path): Path
+
+  infix fun Path.then(other: String): Path
+
+  infix fun Path.then(other: Path): Path
+
+  val Path.beforeArguments: Path
+
+  val String.beforeArguments: Path
+
+  val otherwise: Path
+}
+
+@CommandDsl
+interface ArgumentAwareBuilder<S> : BaseBuilder {
 
   /**
    * Registers a new argument to the command builder. The name of the property will
@@ -334,30 +190,12 @@ interface ArgumentAwareBuilder<S> {
 }
 
 @CommandDsl
-interface ArgumentBuilderAwareBuilder<S> {
+interface ArgumentBuilderAwareBuilder<S> : BaseBuilder {
 
   /**
    * Creates a new argument.
    */
   fun <T> argument(
-      @BuilderInference builder: ArgumentBuilder<T, S>.() -> ArgumentBuilder.ConvertFunction
+      @BuilderInference builder: ArgumentBuilder<T, S>.() -> Unit
   ): BuiltArgument<T, S>
-}
-
-/**
- * The builder for arguments based on other arguments.
- */
-@CommandDsl
-interface ArgumentBuilder<T, S> : ArgumentAwareBuilder<S> {
-
-  /**
-   * Specifies the conversion function where multiple
-   * argument values can be converted into a new result.
-   */
-  fun convert(fn: () -> T): ConvertFunction
-
-  /**
-   * Represents the convert function.
-   */
-  interface ConvertFunction
 }

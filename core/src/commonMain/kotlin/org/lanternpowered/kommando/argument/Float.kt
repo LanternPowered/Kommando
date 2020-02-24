@@ -28,7 +28,7 @@ data class FloatArgument internal constructor(
 ) : Argument<Float, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    val value = parseFloat()
+    val value = readFloat()
     check(value >= min) {
       "Float must not be less than $min, but found $value" }
     check(value <= max) {

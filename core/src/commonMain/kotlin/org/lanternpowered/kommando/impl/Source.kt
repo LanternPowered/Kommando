@@ -74,7 +74,7 @@ internal interface SourceImpl<O, S> : Source<S> {
   }
 }
 
-internal object SourceValidationContext : ValidationContext {
+private object SourceValidationContext : ValidationContext {
 
   override fun error(message: Any): Nothing {
     throw CommandException(messageOf(message))

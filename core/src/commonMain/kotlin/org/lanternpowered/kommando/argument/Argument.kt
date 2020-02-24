@@ -10,6 +10,7 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.CommandDsl
+import org.lanternpowered.kommando.suggestion.Suggestion
 
 /**
  * Represents an argument that can be parsed.
@@ -25,7 +26,7 @@ interface Argument<T, S> {
   /**
    * Generates suggestions for the current argument that is being parsed.
    */
-  fun suggest(context: ArgumentParseContext<S>): List<String> = emptyList()
+  fun suggest(context: ArgumentParseContext<S>): List<Suggestion> = emptyList()
 
   /**
    * Generates a proper name for the given argument based on the base name.

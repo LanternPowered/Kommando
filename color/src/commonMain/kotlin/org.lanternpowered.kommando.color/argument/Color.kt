@@ -62,7 +62,7 @@ class ColorArgument internal constructor(val presets: Map<String, Color> = inbui
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val cursor = this.cursor
-    val value = parseUnquotedString()
+    val value = readUnquotedString()
     // Try as preset
     val color = presets[value]
     if (color != null)
@@ -77,9 +77,9 @@ class ColorArgument internal constructor(val presets: Map<String, Color> = inbui
     // Reset cursor
     this.cursor = cursor
     // Try as RGB values
-    val red = parseFloat().coerceIn(0f..1f)
-    val green = parseFloat().coerceIn(0f..1f)
-    val blue = parseFloat().coerceIn(0f..1f)
+    val red = readFloat().coerceIn(0f..1f)
+    val green = readFloat().coerceIn(0f..1f)
+    val blue = readFloat().coerceIn(0f..1f)
     result(Color(red, green, blue))
   }
 

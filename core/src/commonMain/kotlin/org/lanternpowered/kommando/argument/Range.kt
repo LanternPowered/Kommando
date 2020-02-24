@@ -66,7 +66,7 @@ abstract class RangeArgument<R : ClosedRange<T>, T : Comparable<T>> internal con
 ) : Argument<R, Any> {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
-    val value = parseUnquotedString()
+    val value = readUnquotedString()
     val error = { error("Expected $name range, but found $value") }
     val index = value.indexOf("..")
     val start: T

@@ -65,7 +65,7 @@ abstract class SuggestionsArgument<T, S> internal constructor(
   abstract val suggestions: List<String>
 
   override fun parse(context: ArgumentParseContext<S>) = this.argument.parse(context)
-  override fun suggest(context: ArgumentParseContext<S>) = this.suggestions
+  override fun suggest(context: ArgumentParseContext<S>) = this.suggestions.map { context.suggestion(it) }
   override fun transformName(baseName: String) = this.argument.transformName(baseName)
 }
 
