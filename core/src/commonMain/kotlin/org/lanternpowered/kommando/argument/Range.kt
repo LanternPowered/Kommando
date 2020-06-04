@@ -58,16 +58,16 @@ class FloatRangeArgument internal constructor() : RangeArgument<ClosedRange<Floa
  * The base class for range arguments.
  */
 abstract class RangeArgument<R : ClosedRange<T>, T : Comparable<T>> internal constructor(
-    private val name: String,
+    private val valueName: String,
     private val min: T,
     private val max: T,
     private inline val parse: String.() -> T?,
     private inline val builder: (start: T, end: T) -> R
-) : Argument<R, Any> {
+) : SimpleArgument<R, Any>("$valueName[$min-$max]") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val value = readUnquotedString()
-    val error = { error("Expected $name range, but found $value") }
+    val error = { error("Expected $valueName range, but found $value") }
     val index = value.indexOf("..")
     val start: T
     val end: T

@@ -25,7 +25,7 @@ fun string() = QuotableStringArgument()
  * can be escaped so that they are read literal. If no quotes are specified,
  * only a single word will be read.
  */
-class QuotableStringArgument internal constructor() : Argument<String, Any> {
+class QuotableStringArgument internal constructor() : SimpleArgument<String, Any>("text") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     result(readString())
@@ -44,7 +44,7 @@ fun rawRemainingString() = RawRemainingStringArgument()
  * remaining content. It ignores any quotes, everything will be read
  * literally.
  */
-class RawRemainingStringArgument internal constructor() : Argument<String, Any> {
+class RawRemainingStringArgument internal constructor() : SimpleArgument<String, Any>("text") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val start = context.cursor
@@ -62,7 +62,7 @@ fun word() = SingleWordArgument()
 /**
  * Constructs a string [Argument] that parses a single word.
  */
-class SingleWordArgument internal constructor() : Argument<String, Any> {
+class SingleWordArgument internal constructor() : SimpleArgument<String, Any>("word") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     result(readUnquotedString())

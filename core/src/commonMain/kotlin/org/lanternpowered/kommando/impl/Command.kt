@@ -66,14 +66,9 @@ internal class CommandBuilderImpl<S> : BaseCommandBuilderImpl<S>(), CommandBuild
 internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
     BaseCommandBuilder<S> {
 
-  internal class BoundCommand<S>(
-      val builder: CommandBuilderImpl<S>,
-      val aliases: List<String>
-  )
-
   private val sourceProperties = mutableListOf<SourceProperty<S, *>>()
   private val arguments = mutableListOf<ArgumentProperty<*>>()
-  private val commands = mutableListOf<BoundCommand<S>>()
+  private val commands = mutableListOf<Command<S>>()
   private val options = mutableListOf<FlagProperty<*>>()
 
   override fun <A, B> A.to(b: B) = throw UnsupportedOperationException()
@@ -344,6 +339,14 @@ internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
       override var path: Path,
       override val element: FoldedTreeElement<S>
   ) : BaseCommandBuilder.CommandBuilderWithPath, ObjectWithPath<S>
+
+  override fun Option.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Boolean> {
+    TODO("Not yet implemented")
+  }
+
+  override fun Option.Repeatable.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, Int> {
+    TODO("Not yet implemented")
+  }
 }
 
 internal abstract class AbstractTeeElement<S>(

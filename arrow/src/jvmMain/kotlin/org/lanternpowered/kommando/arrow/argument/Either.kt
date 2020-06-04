@@ -13,6 +13,7 @@ import arrow.core.Either
 import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.argument.ArgumentParseContext
 import org.lanternpowered.kommando.argument.ArgumentParseException
+import org.lanternpowered.kommando.argument.ArgumentUsage
 import org.lanternpowered.kommando.argument.ParseResult
 
 /**
@@ -22,7 +23,8 @@ import org.lanternpowered.kommando.argument.ParseResult
  * @param left The first argument type
  * @param right The second argument type
  */
-fun <L, R, S> either(left: Argument<L, in S>, right: Argument<R, in S>) = EitherArgument(left, right)
+fun <L, R, S> either(left: Argument<L, in S>, right: Argument<R, in S>): EitherArgument<L, R, S> =
+    EitherArgument(left, right)
 
 /**
  * An argument that either parses the [left]
@@ -32,6 +34,8 @@ fun <L, R, S> either(left: Argument<L, in S>, right: Argument<R, in S>) = Either
  * @property right The second argument type
  */
 class EitherArgument<L, R, S>(val left: Argument<L, in S>, val right: Argument<R, in S>) : Argument<Either<L, R>, S> {
+
+  override val usage: ArgumentUsage = ArgumentUsage("${left.usage}|${right.usage}")
 
   override fun parse(context: ArgumentParseContext<S>): ParseResult<Either<L, R>> = context.run {
     try {

@@ -16,26 +16,26 @@ import kotlin.reflect.KProperty
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(first: String, second: String, vararg more: String): ChoicesArgument<String>
-    = choice((arrayOf(first, second) + more).toList())
+fun choice(first: String, second: String, vararg more: String): ChoicesArgument<String> =
+    choice((arrayOf(first, second) + more).toList())
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(values: List<String>): ChoicesArgument<String>
-    = choice(values.associateWith { it })
+fun choice(values: List<String>): ChoicesArgument<String> =
+    choice(values.associateWith { it })
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun choice(values: () -> List<String>): DynamicChoicesArgument<String>
-    = choice(values) { it }
+fun choice(values: () -> List<String>): DynamicChoicesArgument<String> =
+    choice(values) { it }
 
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): ChoicesArgument<V>
-    = choice((arrayOf(first, second) + more).toMap())
+fun <V> choice(first: Pair<String, V>, second: Pair<String, V>, vararg more: Pair<String, V>): ChoicesArgument<V> =
+    choice((arrayOf(first, second) + more).toMap())
 
 /* TODO: Bug in kotlin, where the proper function can't be selected based on the return type.
 /**
@@ -50,7 +50,8 @@ fun <V> choice(values: () -> Map<String, V>): Argument<String, Any> {
 /**
  * Constructs a choices [Argument] based on the given values.
  */
-fun <V> choice(values: () -> List<V>, toName: (value: V) -> String) = DynamicChoicesArgument { values().associateBy(toName) }
+fun <V> choice(values: () -> List<V>, toName: (value: V) -> String): DynamicChoicesArgument<V> =
+    DynamicChoicesArgument { values().associateBy(toName) }
 
 /**
  * Constructs a choices [Argument] based on the given [values].
@@ -63,7 +64,7 @@ fun <V> choice(values: Map<String, V>): ChoicesArgument<V> {
 /**
  * An argument that handles choices.
  */
-abstract class ChoicesArgument<V> internal constructor() : Argument<V, Any> {
+abstract class ChoicesArgument<V> internal constructor() : SimpleArgument<V, Any>("choice") {
 
   /**
    * The choices that are available for the argument.

@@ -9,6 +9,9 @@
  */
 package org.lanternpowered.kommando.impl
 
-import org.lanternpowered.kommando.ExecutionContext
+import org.lanternpowered.kommando.BuiltArgument
+import org.lanternpowered.kommando.argument.Argument
 
-internal object ExecutionContextImpl : ExecutionContext
+internal class BuiltArgumentImpl<T, S>(
+    val argument: Argument<T, S>
+) : BuiltArgument<T, S>

@@ -162,11 +162,11 @@ val testCommand = command<Any> {
     group.beforeArguments {
       val s by word()
 
-      // a|b|c f <word>
+      // a|b|c f <int> <word>
       "f" execute {
       }
 
-      // a|b|c q <word>
+      // a|b|c q <int> <word>
       "q" execute {
       }
     }

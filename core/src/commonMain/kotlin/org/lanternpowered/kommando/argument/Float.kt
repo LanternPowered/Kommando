@@ -25,7 +25,7 @@ fun float(range: ClosedRange<Float>) = FloatArgument(range.start, range.endInclu
 data class FloatArgument internal constructor(
     val min: Float = -Float.MAX_VALUE,
     val max: Float = Float.MAX_VALUE
-) : Argument<Float, Any> {
+) : SimpleArgument<Float, Any>("float") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val value = readFloat()

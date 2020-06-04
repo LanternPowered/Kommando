@@ -19,6 +19,11 @@ import org.lanternpowered.kommando.suggestion.Suggestion
 interface Argument<T, S> {
 
   /**
+   * The usage of the argument.
+   */
+  val usage: ArgumentUsage
+
+  /**
    * Parses the argument.
    */
   fun parse(context: ArgumentParseContext<S>): ParseResult<T>
@@ -27,9 +32,14 @@ interface Argument<T, S> {
    * Generates suggestions for the current argument that is being parsed.
    */
   fun suggest(context: ArgumentParseContext<S>): List<Suggestion> = emptyList()
+}
 
-  /**
-   * Generates a proper name for the given argument based on the base name.
-   */
-  fun transformName(baseName: String): String = baseName
+/**
+ * Represents a simple argument with a default name if one isn't specified.
+ */
+abstract class SimpleArgument<T, S>(
+    name: String
+) : Argument<T, S> {
+
+  override val usage: ArgumentUsage = ArgumentUsage("<$name>")
 }

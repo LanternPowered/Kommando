@@ -25,7 +25,7 @@ fun int(range: ClosedRange<Int>) = IntArgument(range.start, range.endInclusive)
 data class IntArgument internal constructor(
     val min: Int = Int.MIN_VALUE,
     val max: Int = Int.MAX_VALUE
-) : Argument<Int, Any> {
+) : SimpleArgument<Int, Any>("int") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val value = readInt()

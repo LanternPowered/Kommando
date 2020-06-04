@@ -29,6 +29,9 @@ data class PairArgument<A, B, S> internal constructor(
     val second: Argument<B, in S>
 ) : Argument<Pair<A, B>, S> {
 
+  override val usage: ArgumentUsage = ArgumentUsage("${first.usage} ${second.usage}",
+      optional = first.usage.optional && second.usage.optional)
+
   override fun parse(context: ArgumentParseContext<S>) = context.run {
     val a = first.parse()
     val b = second.parse()

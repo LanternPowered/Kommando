@@ -13,9 +13,9 @@ import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.suggestion.Suggestion
 
 internal class FoldedArgument<T, S>(
-    val argument: Argument<T, S>,
+    val argument: Argument<out T, in S>,
     val property: ValueProperty<T>,
-    val name: String?
+    val name: String? = null
 ) : FoldedTreeElement<S> {
 
   override fun unfold(builder: TreeBuilder) {

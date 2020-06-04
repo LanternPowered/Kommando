@@ -25,7 +25,9 @@ internal class ArgumentProperty<T>(
     val name: String?
 ) : ValueProperty<T>()
 
-internal class ArgumentBuilderImpl<T, S> : ArgumentBaseBuilderImpl<T, S>(), ArgumentBuilder<T, S>, BuiltArgument<T, S> {
+internal class ArgumentBuilderImpl<T, S>(
+    property: ValueProperty<T>
+) : ArgumentBaseBuilderImpl<T, S>(property), ArgumentBuilder<T, S>, BuiltArgument<T, S> {
 
   /**
    * The converter of the argument.
@@ -44,8 +46,9 @@ internal class ArgumentBuilderImpl<T, S> : ArgumentBaseBuilderImpl<T, S>(), Argu
 // -> Command builder (only commands)
 // -> Flags (only commands)
 
-internal open class ArgumentBaseBuilderImpl<T, S> :
-    AbstractPathAwareBuilder<S>(), ArgumentBaseBuilder<T, S> {
+internal open class ArgumentBaseBuilderImpl<T, S>(
+    val property: ValueProperty<T>
+) : AbstractPathAwareBuilder<S>(), ArgumentBaseBuilder<T, S> {
 
   private class ArgumentBuilderWithPath<S>(
       override var path: Path,
@@ -57,10 +60,10 @@ internal open class ArgumentBaseBuilderImpl<T, S> :
   override fun Path.invoke(
       fn: ArgumentBuilder<T, S>.() -> Unit
   ): ArgumentBaseBuilder.ArgumentBuilderWithPath {
-    val builder = ArgumentBuilderImpl<T, S>()
+    val builder = ArgumentBuilderImpl<T, S>(property)
     builder.fn()
     val objectWithPath = ArgumentBuilderWithPath(this,
-        FoldedBuiltArgument(builder, null))
+        FoldedBuiltArgument(builder, property))
     children += objectWithPath
     return objectWithPath
   }
@@ -88,7 +91,7 @@ internal open class ArgumentBaseBuilderImpl<T, S> :
   override fun String.then(other: ArgumentBaseBuilder.ArgumentBuilderWithPath) = this.path.then(other)
 
   override fun Path.to(other: Argument<out T, in S>) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    children += ImmutableObjectWithPath(this, FoldedArgument(other, property))
   }
 
   override fun String.to(other: Argument<out T, in S>) = this.path to other
@@ -104,15 +107,26 @@ internal open class ArgumentBaseBuilderImpl<T, S> :
   override fun String.beforeArguments(fn: ArgumentBuilder<T, S>.() -> Unit) = this.path.beforeArguments(fn)
 
   override fun <T> Argument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val property = ValueProperty<T>()
+    this@ArgumentBaseBuilderImpl.children += ImmutableObjectWithPath(
+        null, FoldedArgument(this, property))
+    return property
   }
 
   override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    this as NamedArgumentImpl
+    val property = ValueProperty<T>()
+    this@ArgumentBaseBuilderImpl.children += ImmutableObjectWithPath(
+        null, FoldedArgument(this.argument, property, this.name))
+    return property
   }
 
   override fun <T> BuiltArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    this as BuiltArgumentImpl
+    val property = ValueProperty<T>()
+    this@ArgumentBaseBuilderImpl.children += ImmutableObjectWithPath(
+        null, FoldedArgument(this.argument, property))
+    return property
   }
 
   override fun <T, S> Argument<T, S>.named(name: String) = NamedArgumentImpl(name, this)

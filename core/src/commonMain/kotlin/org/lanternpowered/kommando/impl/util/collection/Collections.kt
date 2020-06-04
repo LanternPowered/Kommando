@@ -26,9 +26,8 @@ internal infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
 internal infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
   if (this.size != that.size) return false
   for (i in this.indices) {
-    if (this[i] != that[i]) {
+    if (this[i] != that[i])
       return false
-    }
   }
   return true
 }
@@ -38,8 +37,7 @@ internal infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
  */
 internal fun <E> Iterable<E>.contentHashCode(): Int {
   var result = 1
-  for (element in this) {
+  for (element in this)
     result = 31 * result + (element?.hashCode() ?: 0)
-  }
   return result
 }

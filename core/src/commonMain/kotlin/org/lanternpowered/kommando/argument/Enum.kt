@@ -12,9 +12,11 @@ package org.lanternpowered.kommando.argument
 /**
  * Constructs an enum [Argument] based on the given enum type [E].
  */
-inline fun <reified E : Enum<E>> enum() = enum(enumValues<E>().toList())
+inline fun <reified E : Enum<E>> enum(): ChoicesArgument<E> =
+    enum(enumValues<E>().toList())
 
 /**
  * Constructs an enum [Argument] based on the given [values].
  */
-fun <E : Enum<E>> enum(values: List<E>) = choice(values.associateBy { value -> value.name.toLowerCase() })
+fun <E : Enum<E>> enum(values: List<E>): ChoicesArgument<E> =
+    choice(values.associateBy { value -> value.name.toLowerCase() })

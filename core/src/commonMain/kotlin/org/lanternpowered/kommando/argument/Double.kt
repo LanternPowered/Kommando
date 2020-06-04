@@ -25,7 +25,7 @@ fun double(range: ClosedRange<Double>) = DoubleArgument(range.start, range.endIn
 data class DoubleArgument internal constructor(
     val min: Double = -Double.MAX_VALUE,
     val max: Double = Double.MAX_VALUE
-) : Argument<Double, Any> {
+) : SimpleArgument<Double, Any>("double") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val value = readDouble()

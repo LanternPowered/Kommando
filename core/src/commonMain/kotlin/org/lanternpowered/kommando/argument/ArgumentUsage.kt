@@ -7,12 +7,19 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.kommando.impl
+package org.lanternpowered.kommando.argument
 
-import org.lanternpowered.kommando.NamedArgument
-import org.lanternpowered.kommando.argument.Argument
-
-internal class NamedArgumentImpl<T, S>(
+/**
+ * Represents an argument name.
+ */
+data class ArgumentUsage(
     val name: String,
-    val argument: Argument<T, S>
-) : NamedArgument<T, S>
+    val optional: Boolean = false
+) {
+
+  override fun toString(): String {
+    if (!optional)
+      return name
+    return "[$name]"
+  }
+}

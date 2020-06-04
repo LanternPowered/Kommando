@@ -146,13 +146,15 @@ class ToStringHelper constructor(
     var entry = this.first
     while (entry != null) {
       if (!this.omitNullValues || entry.value != null) {
-        if (entry.key != null) {
-          builder.append(entry.key).append(this.nameValueSeparator)
-        }
-        builder.append(entry.value)
-        if (entry.next != null) {
+        if (entry != this.first)
           builder.append(this.entrySeparator)
+        if (entry.key != null)
+          builder.append(entry.key).append(this.nameValueSeparator)
+        var value = entry.value.toString()
+        if (value.indexOfAny(quotedChars) != -1) {
+          value = "'$value'"
         }
+        builder.append(value)
       }
       entry = entry.next
     }
@@ -172,4 +174,9 @@ class ToStringHelper constructor(
   }
 
   private data class Entry(val key: String?, val value: Any?, var next: Entry? = null)
+
+  companion object {
+
+    private val quotedChars = charArrayOf(',', ' ')
+  }
 }

@@ -25,7 +25,7 @@ fun long(range: ClosedRange<Long>) = LongArgument(range.start, range.endInclusiv
 data class LongArgument internal constructor(
     val min: Long = Long.MIN_VALUE,
     val max: Long = Long.MAX_VALUE
-) : Argument<Long, Any> {
+) : SimpleArgument<Long, Any>("long") {
 
   override fun parse(context: ArgumentParseContext<Any>) = context.run {
     val value = readLong()

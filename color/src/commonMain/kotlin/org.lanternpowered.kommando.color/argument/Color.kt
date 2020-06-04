@@ -11,6 +11,8 @@ package org.lanternpowered.kommando.color.argument
 
 import org.lanternpowered.kommando.argument.Argument
 import org.lanternpowered.kommando.argument.ArgumentParseContext
+import org.lanternpowered.kommando.argument.ParseResult
+import org.lanternpowered.kommando.argument.SimpleArgument
 import org.lanternpowered.kommando.color.Color
 import org.lanternpowered.kommando.color.Colors
 
@@ -58,9 +60,11 @@ fun color(presets: Map<String, Color> = inbuiltPresets) = ColorArgument(presets.
  *
  * @property presets The presets which are colors that can be specified by name
  */
-class ColorArgument internal constructor(val presets: Map<String, Color> = inbuiltPresets) : Argument<Color, Any> {
+class ColorArgument internal constructor(
+    val presets: Map<String, Color> = inbuiltPresets
+) : SimpleArgument<Color, Any>("color") {
 
-  override fun parse(context: ArgumentParseContext<Any>) = context.run {
+  override fun parse(context: ArgumentParseContext<Any>): ParseResult<Color> = context.run {
     val cursor = this.cursor
     val value = readUnquotedString()
     // Try as preset

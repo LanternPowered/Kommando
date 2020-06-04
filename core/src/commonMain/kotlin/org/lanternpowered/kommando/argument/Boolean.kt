@@ -17,7 +17,7 @@ fun boolean() = BooleanArgument()
 /**
  * An argument that parses a boolean value.
  */
-class BooleanArgument internal constructor() : Argument<Boolean, Any> {
+class BooleanArgument internal constructor() : SimpleArgument<Boolean, Any>("boolean") {
 
   private val suggestions = listOf("true", "false")
 

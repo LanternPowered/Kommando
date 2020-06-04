@@ -16,8 +16,8 @@ package org.lanternpowered.kommando.argument
  * @param more The rest of the suggestions
  * @return The argument
  */
-fun <T, S> Argument<T, S>.suggest(first: String, vararg more: String)
-    = suggest(listOf(first) + more)
+fun <T, S> Argument<T, S>.suggest(first: String, vararg more: String): SuggestionsArgument<T, S> =
+    suggest(listOf(first) + more)
 
 /**
  * Constructs an argument that provides custom suggestions.
@@ -25,8 +25,8 @@ fun <T, S> Argument<T, S>.suggest(first: String, vararg more: String)
  * @param iterable The suggestions
  * @return The argument
  */
-fun <T, S> Argument<T, S>.suggest(iterable: Iterable<String>): SuggestionsArgument<T, S>
-    = ConstantSuggestionsArgument(this, iterable.toList())
+fun <T, S> Argument<T, S>.suggest(iterable: Iterable<String>): SuggestionsArgument<T, S> =
+    ConstantSuggestionsArgument(this, iterable.toList())
 
 /**
  * Constructs an argument that provides custom suggestions.
@@ -34,8 +34,8 @@ fun <T, S> Argument<T, S>.suggest(iterable: Iterable<String>): SuggestionsArgume
  * @param provider The suggestions provider
  * @return The argument
  */
-fun <T, S> Argument<T, S>.suggest(provider: () -> List<String>)
-    = DynamicSuggestionsArgument(this, provider)
+fun <T, S> Argument<T, S>.suggest(provider: () -> List<String>): DynamicSuggestionsArgument<T, S> =
+    DynamicSuggestionsArgument(this, provider)
 
 /**
  * A suggestions argument that has a dynamic set of suggestions.
@@ -59,6 +59,9 @@ abstract class SuggestionsArgument<T, S> internal constructor(
     val argument: Argument<T, S>
 ) : Argument<T, S> {
 
+  override val usage: ArgumentUsage
+    get() = argument.usage
+
   /**
    * The suggestions.
    */
@@ -66,7 +69,6 @@ abstract class SuggestionsArgument<T, S> internal constructor(
 
   override fun parse(context: ArgumentParseContext<S>) = this.argument.parse(context)
   override fun suggest(context: ArgumentParseContext<S>) = this.suggestions.map { context.suggestion(it) }
-  override fun transformName(baseName: String) = this.argument.transformName(baseName)
 }
 
 /**

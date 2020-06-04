@@ -86,6 +86,9 @@ class ConvertedArgument<T, N, S>(
     val converter: ValidationContext.(T) -> N
 ) : Argument<N, S> {
 
+  override val usage: ArgumentUsage
+    get() = argument.usage
+
   override fun parse(context: ArgumentParseContext<S>) = context.run {
     argument.parse().map { converter(it) }
   }
@@ -93,8 +96,6 @@ class ConvertedArgument<T, N, S>(
   override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
   }
-
-  override fun transformName(baseName: String) = argument.transformName(baseName)
 }
 
 /**
@@ -111,6 +112,9 @@ class ValidatedArgument<T, S>(
     val validator: ValidationContext.(T) -> Unit
 ) : Argument<T, S> {
 
+  override val usage: ArgumentUsage
+    get() = argument.usage
+
   override fun parse(context: ArgumentParseContext<S>) = context.run {
     argument.parse().also { validator(it.value) }
   }
@@ -118,7 +122,4 @@ class ValidatedArgument<T, S>(
   override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
   }
-
-  override fun transformName(baseName: String) = argument.transformName(baseName)
 }
-
