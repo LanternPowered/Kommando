@@ -16,6 +16,7 @@ import org.lanternpowered.kommando.argument.default
 import org.lanternpowered.kommando.argument.double
 import org.lanternpowered.kommando.argument.int
 import org.lanternpowered.kommando.argument.multiple
+import org.lanternpowered.kommando.argument.named
 import org.lanternpowered.kommando.argument.optional
 import org.lanternpowered.kommando.argument.rawRemainingString
 import org.lanternpowered.kommando.argument.string

@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
+
 /**
  * Constructs an argument that provides custom suggestions.
  *
@@ -59,7 +61,7 @@ abstract class SuggestionsArgument<T, S> internal constructor(
     val argument: Argument<T, S>
 ) : Argument<T, S> {
 
-  override val usage: ArgumentUsage
+  override val usage: CommandUsage
     get() = argument.usage
 
   /**

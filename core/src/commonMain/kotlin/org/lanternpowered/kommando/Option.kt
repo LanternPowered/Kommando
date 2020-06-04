@@ -66,30 +66,17 @@ interface MappedOptionsBuilder<T, S> : BaseBuilder {
 
   infix fun Option.with(argument: BuiltArgument<out T, in S>)
 
-  infix fun Option.with(argument: NamedArgument<out T, in S>)
-
   infix fun Option.Repeatable.with(argument: Argument<out T, in S>)
 
   infix fun Option.Repeatable.with(argument: BuiltArgument<out T, in S>)
-
-  infix fun Option.Repeatable.with(argument: NamedArgument<out T, in S>)
 
   infix fun String.with(argument: Argument<out T, in S>)
 
   infix fun String.with(argument: BuiltArgument<out T, in S>)
 
-  infix fun String.with(argument: NamedArgument<out T, in S>)
-
   infix fun Path.with(argument: Argument<out T, in S>)
 
   infix fun Path.with(argument: BuiltArgument<out T, in S>)
-
-  infix fun Path.with(argument: NamedArgument<out T, in S>)
-
-  /**
-   * Names the argument with the specified name.
-   */
-  fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S>
 }
 
 @CommandDsl
@@ -168,22 +155,12 @@ interface OptionAwareBuilder<S> : ArgumentBuilderAwareBuilder<S>, PathAwareBuild
   /**
    * Represents an option that is bound to an argument.
    */
-  infix fun <T, S> Option.with(argument: NamedArgument<T, S>): BoundOption<T, S>
-
-  /**
-   * Represents an option that is bound to an argument.
-   */
   infix fun <T, S> Option.with(argument: BuiltArgument<T, S>): BoundOption<T, S>
 
   /**
    * Represents an option that is bound to an argument.
    */
   infix fun <T, S> Option.Repeatable.with(argument: Argument<T, S>): BoundOption.Repeatable<T, S>
-
-  /**
-   * Represents an option that is bound to an argument.
-   */
-  infix fun <T, S> Option.Repeatable.with(argument: NamedArgument<T, S>): BoundOption.Repeatable<T, S>
 
   /**
    * Represents an option that is bound to an argument.

@@ -17,7 +17,6 @@ import org.lanternpowered.kommando.Command
 import org.lanternpowered.kommando.CommandBuilder
 import org.lanternpowered.kommando.CommandContext
 import org.lanternpowered.kommando.Flag
-import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.ExecutionContext
 import org.lanternpowered.kommando.Group
 import org.lanternpowered.kommando.MappedOptions
@@ -108,14 +107,6 @@ internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
     return property
   }
 
-  override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
-    this as NamedArgumentImpl<T, in S>
-    val property = ArgumentProperty(this.argument, this.name)
-    this@BaseCommandBuilderImpl.arguments += property
-    return property
-  }
-
   override fun <T> Flag<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
     this@BaseCommandBuilderImpl.checkAllowArgumentRegistrations()
     @Suppress("UNCHECKED_CAST")
@@ -193,8 +184,6 @@ internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
 
   override fun String.invoke(fn: CommandBuilder<S>.() -> Unit) = this.path.invoke(fn)
 
-  override fun <T, S> Argument<T, S>.named(name: String) = NamedArgumentImpl(name, this)
-
   override fun Path.or(other: BaseCommandBuilder.CommandBuilderWithPath): BaseCommandBuilder.CommandBuilderWithPath {
     other as CommandBuilderWithPath<*>
     other.path = this.or(other.path)
@@ -259,10 +248,6 @@ internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun <T, S> Option.Repeatable.with(argument: NamedArgument<T, S>): BoundOption.Repeatable<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
   override fun String.option() = OptionImpl(this.path)
   override fun Path.option() = OptionImpl(this)
 
@@ -271,10 +256,6 @@ internal open class BaseCommandBuilderImpl<S> : AbstractPathAwareBuilder<S>(),
   }
 
   override fun <T, S> Option.with(argument: BuiltArgument<T, S>): BoundOption<T, S> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun <T, S> Option.with(argument: NamedArgument<T, S>): BoundOption<T, S> {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 

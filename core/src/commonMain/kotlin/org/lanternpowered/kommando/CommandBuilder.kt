@@ -21,9 +21,6 @@ fun <S> command(fn: CommandBuilder<S>.() -> Unit): Command<S>
     = CommandBuilderImpl<S>().apply(fn).build()
 
 @CommandDsl
-interface NamedArgument<T, S>
-
-@CommandDsl
 interface BuiltArgument<T, S>
 
 @CommandDsl
@@ -171,22 +168,8 @@ interface ArgumentAwareBuilder<S> : BaseBuilder {
    * Accessing the argument value outside the execution of the command will result
    * in an [IllegalStateException].
    */
-  operator fun <T> NamedArgument<T, in S>.provideDelegate(
-      thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Registers a new named argument to the command builder.
-   *
-   * Accessing the argument value outside the execution of the command will result
-   * in an [IllegalStateException].
-   */
   operator fun <T> BuiltArgument<T, in S>.provideDelegate(
       thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T>
-
-  /**
-   * Names the argument with the specified name.
-   */
-  fun <T, S> Argument<T, S>.named(name: String): NamedArgument<T, S>
 }
 
 @CommandDsl

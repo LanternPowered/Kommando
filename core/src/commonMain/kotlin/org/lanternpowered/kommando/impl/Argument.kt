@@ -13,7 +13,6 @@ import org.lanternpowered.kommando.ArgumentBaseBuilder
 import org.lanternpowered.kommando.ArgumentBuilder
 import org.lanternpowered.kommando.BuiltArgument
 import org.lanternpowered.kommando.Group
-import org.lanternpowered.kommando.NamedArgument
 import org.lanternpowered.kommando.Path
 import org.lanternpowered.kommando.ValidationContext
 import org.lanternpowered.kommando.argument.Argument
@@ -113,14 +112,6 @@ internal open class ArgumentBaseBuilderImpl<T, S>(
     return property
   }
 
-  override fun <T> NamedArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
-    this as NamedArgumentImpl
-    val property = ValueProperty<T>()
-    this@ArgumentBaseBuilderImpl.children += ImmutableObjectWithPath(
-        null, FoldedArgument(this.argument, property, this.name))
-    return property
-  }
-
   override fun <T> BuiltArgument<T, in S>.provideDelegate(thisRef: Any?, prop: KProperty<*>): ReadOnlyProperty<Any?, T> {
     this as BuiltArgumentImpl
     val property = ValueProperty<T>()
@@ -128,6 +119,4 @@ internal open class ArgumentBaseBuilderImpl<T, S>(
         null, FoldedArgument(this.argument, property))
     return property
   }
-
-  override fun <T, S> Argument<T, S>.named(name: String) = NamedArgumentImpl(name, this)
 }

@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
+
 /**
  * Constructs a triple [Argument] that parses the target argument three times.
  */
@@ -31,8 +33,7 @@ data class TripleArgument<A, B, C, S> internal constructor(
     val third: Argument<C, in S>
 ) : Argument<Triple<A, B, C>, S> {
 
-  override val usage: ArgumentUsage = ArgumentUsage("${first.usage} ${second.usage} ${third.usage}",
-      optional = first.usage.optional && second.usage.optional && third.usage.optional)
+  override val usage: CommandUsage = CommandUsage.join(first.usage, second.usage, third.usage, separator = " ")
 
   override fun parse(context: ArgumentParseContext<S>) = context.run {
     val a = first.parse()

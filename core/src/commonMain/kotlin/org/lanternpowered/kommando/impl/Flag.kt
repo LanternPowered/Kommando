@@ -9,10 +9,10 @@
  */
 package org.lanternpowered.kommando.impl
 
+import org.lanternpowered.kommando.CommandUsage
 import org.lanternpowered.kommando.Flag
 import org.lanternpowered.kommando.argument.Argument as ParserArgument
 import org.lanternpowered.kommando.argument.ArgumentParseContext
-import org.lanternpowered.kommando.argument.ArgumentUsage
 import org.lanternpowered.kommando.argument.ParseResult
 import org.lanternpowered.kommando.suggestion.Suggestion
 
@@ -24,7 +24,7 @@ internal abstract class FlagImpl<T, S>(val flagNames: FlagNamesImpl) : ParserArg
       val argument: ParserArgument<T, S>, private val defaultValue: (() -> T)?, names: FlagNamesImpl
   ) : FlagImpl<T, S>(names), Flag<T, S> {
 
-    override val usage: ArgumentUsage = ArgumentUsage("flags")
+    override val usage: CommandUsage = CommandUsage.literal("flags")
 
     override fun parse(context: ArgumentParseContext<S>) = this.argument.parse(context)
     override fun suggest(context: ArgumentParseContext<S>) = this.argument.suggest(context)
@@ -38,7 +38,7 @@ internal abstract class FlagImpl<T, S>(val flagNames: FlagNamesImpl) : ParserArg
 
   class TrueIfPresent<S>(names: FlagNamesImpl) : FlagImpl<Boolean, S>(names), Flag<Boolean, S> {
 
-    override val usage: ArgumentUsage = ArgumentUsage("flags")
+    override val usage: CommandUsage = CommandUsage.literal("flags")
 
     override fun parse(context: ArgumentParseContext<S>) = ParseResult(true)
     override fun suggest(context: ArgumentParseContext<S>) = listOf<Suggestion>()

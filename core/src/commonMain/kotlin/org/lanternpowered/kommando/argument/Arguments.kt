@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
 import org.lanternpowered.kommando.ValidationContext
 
 /*
@@ -86,7 +87,7 @@ class ConvertedArgument<T, N, S>(
     val converter: ValidationContext.(T) -> N
 ) : Argument<N, S> {
 
-  override val usage: ArgumentUsage
+  override val usage: CommandUsage
     get() = argument.usage
 
   override fun parse(context: ArgumentParseContext<S>) = context.run {
@@ -101,7 +102,8 @@ class ConvertedArgument<T, N, S>(
 /**
  * Validates the output value.
  */
-fun <T, S> Argument<T, S>.validate(fn: ValidationContext.(T) -> Unit) = ValidatedArgument(this, fn)
+fun <T, S> Argument<T, S>.validate(fn: ValidationContext.(T) -> Unit): ValidatedArgument<T, S> =
+    ValidatedArgument(this, fn)
 
 /**
  * A arguments that validates the parsed value
@@ -112,7 +114,7 @@ class ValidatedArgument<T, S>(
     val validator: ValidationContext.(T) -> Unit
 ) : Argument<T, S> {
 
-  override val usage: ArgumentUsage
+  override val usage: CommandUsage
     get() = argument.usage
 
   override fun parse(context: ArgumentParseContext<S>) = context.run {

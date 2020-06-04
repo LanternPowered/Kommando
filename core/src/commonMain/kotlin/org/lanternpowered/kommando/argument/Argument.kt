@@ -10,6 +10,7 @@
 package org.lanternpowered.kommando.argument
 
 import org.lanternpowered.kommando.CommandDsl
+import org.lanternpowered.kommando.CommandUsage
 import org.lanternpowered.kommando.suggestion.Suggestion
 
 /**
@@ -21,7 +22,7 @@ interface Argument<T, S> {
   /**
    * The usage of the argument.
    */
-  val usage: ArgumentUsage
+  val usage: CommandUsage
 
   /**
    * Parses the argument.
@@ -41,5 +42,5 @@ abstract class SimpleArgument<T, S>(
     name: String
 ) : Argument<T, S> {
 
-  override val usage: ArgumentUsage = ArgumentUsage("<$name>")
+  override val usage: CommandUsage = CommandUsage.argument(name)
 }

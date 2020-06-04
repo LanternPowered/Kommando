@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
+
 /**
  * Constructs a [NamedArgument] with the argument and the given name.
  */
@@ -23,5 +25,5 @@ class NamedArgument<T, S> internal constructor(
     val argument: Argument<T, S>
 ) : Argument<T, S> by argument {
 
-  override val usage: ArgumentUsage = argument.usage.copy(name = name)
+  override val usage: CommandUsage = CommandUsage.argument(name).optional(argument.usage.isOptional)
 }

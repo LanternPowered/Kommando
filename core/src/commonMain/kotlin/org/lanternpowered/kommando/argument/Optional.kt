@@ -11,6 +11,7 @@
 
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
 import org.lanternpowered.kommando.suggestion.Suggestion
 
 /**
@@ -29,7 +30,7 @@ class OptionalArgument<T, S> internal constructor(
     val argument: Argument<T, S>
 ) : Argument<T?, S> {
 
-  override val usage: ArgumentUsage = argument.usage.copy(optional = true)
+  override val usage: CommandUsage = argument.usage.optional(true)
 
   override fun suggest(context: ArgumentParseContext<S>) = context.run {
     argument.suggest()
@@ -70,7 +71,7 @@ class DefaultedOptionalArgument<T, S> internal constructor(
     val default: ArgumentParseContext<S>.() -> T
 ) : Argument<T, S> {
 
-  override val usage: ArgumentUsage
+  override val usage: CommandUsage
     get() = argument.usage
 
   override fun parse(context: ArgumentParseContext<S>): ParseResult<T> = context.run {

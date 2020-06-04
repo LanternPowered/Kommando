@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.kommando.argument
 
+import org.lanternpowered.kommando.CommandUsage
+
 /**
  * Constructs a pair [Argument] that parses the target argument two times.
  */
@@ -29,8 +31,7 @@ data class PairArgument<A, B, S> internal constructor(
     val second: Argument<B, in S>
 ) : Argument<Pair<A, B>, S> {
 
-  override val usage: ArgumentUsage = ArgumentUsage("${first.usage} ${second.usage}",
-      optional = first.usage.optional && second.usage.optional)
+  override val usage: CommandUsage = CommandUsage.join(first.usage, second.usage, separator = " ")
 
   override fun parse(context: ArgumentParseContext<S>) = context.run {
     val a = first.parse()

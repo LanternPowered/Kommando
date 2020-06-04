@@ -36,7 +36,7 @@ class ListArgument<T, S> internal constructor(
     val times: IntRange = 1..Int.MAX_VALUE
 ): Argument<List<T>, S> {
 
-  override val usage = ArgumentUsage(argument.usage.name + times.formatName()) // Unset optional
+  override val usage = argument.usage.optional(false) + times.formatName()
 
   override fun parse(context: ArgumentParseContext<S>): ParseResult<List<T>> = context.run {
     val list = mutableListOf<T>()
